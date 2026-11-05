@@ -88,6 +88,9 @@ async function ProjectView({ params }: PageProps<"/projects/[id]">) {
         {p.url && <a href={p.url} target="_blank" rel="noopener noreferrer" className="flex h-12 items-center rounded-[14px] bg-surface px-5 font-semibold">써보기</a>}
         {p.repo_url && <a href={p.repo_url} target="_blank" rel="noopener noreferrer" className="flex h-12 items-center rounded-[14px] bg-surface px-5 font-semibold">GitHub</a>}
         {user?.id === p.owner_id && (
+          <Link href={`/projects/${id}/edit`} className="flex h-12 items-center rounded-[14px] bg-surface px-5 font-semibold">수정</Link>
+        )}
+        {user?.id === p.owner_id && (
           <form action={deleteProject}>
             <input type="hidden" name="project_id" value={id} />
             <button className="h-12 rounded-[14px] px-5 font-semibold text-danger hover:bg-surface">삭제</button>
