@@ -1,9 +1,12 @@
 import Link from "next/link";
 import { Suspense } from "react";
+import { RotatingText } from "@/components/ui/RotatingText";
 import { ProjectCard, SPANS, THEMES } from "@/components/project/ProjectCard";
 import { CATEGORIES, categoryOf, isCategory } from "@/lib/categories";
 import { SAMPLE_PROJECTS } from "@/lib/sample-projects";
 import { db } from "@/lib/supabase/server";
+
+const HERO_WORDS = ["개발", "업무", "디자인", "공부", "게임", "기록"];
 
 const GRID = "grid auto-rows-[220px] grid-cols-1 gap-2 md:grid-cols-4 md:grid-flow-dense";
 
@@ -158,9 +161,9 @@ export default function Home(props: PageProps<"/">) {
     <main className="mx-auto w-full max-w-6xl px-4 pb-16">
       <section className="py-14 text-center sm:py-20">
         <h1 className="text-4xl font-bold leading-tight sm:text-5xl sm:leading-[1.3]">
-          내가 만든 앱,
+          내가 <RotatingText words={HERO_WORDS} />하려고 만든 앱,
           <br />
-          <span className="text-primary">모두에게</span> 보여주세요
+          모두에게 보여주세요
         </h1>
         <p className="mt-4 text-body">직접 만든 앱·웹을 올리고 피드백과 Hype를 받아보세요.</p>
         <Link
