@@ -25,6 +25,7 @@ type Defaults = {
   pricing?: string | null;
   tech_stack?: string[];
   version?: string | null;
+  md_name?: string | null;
 };
 
 function Section({ step, title, children }: { step: number; title: string; children: React.ReactNode }) {
@@ -92,6 +93,17 @@ export function ProjectFields({ d = {} }: { d?: Defaults }) {
         <label className="block text-sm font-semibold">자세한 설명
           <textarea name="description" rows={6} maxLength={5000} defaultValue={d.description ?? ""} placeholder="왜 만들었는지, 어떤 문제를 해결하는지 들려주세요." className={input} />
         </label>
+        <div className="text-sm font-semibold">
+          MD 파일 첨부
+          <span className={hint}>프롬프트·가이드·README 같은 .md 파일 (1MB 이하). 방문자가 미리 보고 다운로드·복사할 수 있어요.</span>
+          {d.md_name && (
+            <p className="mt-2 flex flex-wrap items-center gap-3 rounded-lg bg-surface px-3 py-2 font-normal">
+              <span>현재 파일: <b className="font-semibold">{d.md_name}</b></span>
+              <label className="flex items-center gap-1 text-xs text-danger"><input type="checkbox" name="md_remove" value="1" /> 첨부 지우기</label>
+            </p>
+          )}
+          <input name="md_file" type="file" accept=".md,.markdown,text/markdown" className="mt-2 block w-full text-sm font-normal file:mr-3 file:h-10 file:rounded-lg file:border-0 file:bg-weak-bg file:px-4 file:font-semibold file:text-weak-fg" />
+        </div>
         <label className="block text-sm font-semibold">설치 · 사용 방법
           <textarea name="install_guide" rows={5} maxLength={5000} placeholder={"git clone https://github.com/...\nnpm install\nnpm run dev"} defaultValue={d.install_guide ?? ""} className={`${input} font-mono text-sm`} />
         </label>

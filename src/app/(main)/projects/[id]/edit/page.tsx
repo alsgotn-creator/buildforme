@@ -4,7 +4,7 @@ import { Suspense } from "react";
 import { ProjectFields } from "@/components/project/ProjectFields";
 import { PROJECT_ERRORS, parseProjectForm } from "@/lib/project-input";
 import { getViewer } from "@/lib/supabase/auth";
-import { uploadThumbnail } from "@/lib/upload";
+import { handleMarkdown, uploadThumbnail } from "@/lib/upload";
 import { db } from "@/lib/supabase/server";
 
 const UUID = /^[0-9a-f-]{36}$/i;
@@ -21,9 +21,11 @@ async function updateProject(formData: FormData) {
   const up = await uploadThumbnail(formData, viewer.id);
   if (up.error) redirect(`/projects/${id}/edit?error=${up.error}`);
   if (up.url) parsed.values.thumbnail_url = up.url;
+  const { error: mdError, ...md } = await handleMarkdown(formData, viewer.id);
+  if (mdError) redirect(`/projects/${id}/edit?error=${mdError}`);
 
   // 본인 글만, 관리자는 전부 수정 가능
-  let q = db.from("projects").update({ ...parsed.values, updated_at: new Date().toISOString() }).eq("id", id);
+  let q = db.from("projects").update({ ...parsed.values, ...md, updated_at: new Date().toISOString() }).eq("id", id);
   if (!viewer.isAdmin) q = q.eq("owner_id", viewer.id);
   const { data, error } = await q.select("id");
   if (error || !data?.length) redirect(`/projects/${id}/edit?error=save`);

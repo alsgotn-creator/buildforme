@@ -3,7 +3,7 @@ import { Suspense } from "react";
 import { ProjectFields } from "@/components/project/ProjectFields";
 import { PROJECT_ERRORS, parseProjectForm } from "@/lib/project-input";
 import { getUser } from "@/lib/supabase/auth";
-import { uploadThumbnail } from "@/lib/upload";
+import { handleMarkdown, uploadThumbnail } from "@/lib/upload";
 import { db } from "@/lib/supabase/server";
 
 async function createProject(formData: FormData) {
@@ -16,10 +16,12 @@ async function createProject(formData: FormData) {
   const up = await uploadThumbnail(formData, user.id);
   if (up.error) redirect(`/projects/new?error=${up.error}`);
   if (up.url) parsed.values.thumbnail_url = up.url;
+  const { error: mdError, ...md } = await handleMarkdown(formData, user.id);
+  if (mdError) redirect(`/projects/new?error=${mdError}`);
 
   const { data, error } = await db
     .from("projects")
-    .insert({ owner_id: user.id, ...parsed.values })
+    .insert({ owner_id: user.id, ...parsed.values, ...md })
     .select("id")
     .single();
   if (error) redirect("/projects/new?error=save");

@@ -3,8 +3,8 @@
 개인이 만든 웹·앱(이하 **프로젝트**)을 등록·홍보하고, 커뮤니티에서 자유롭게 이야기하는 사이트의 DB 구조와 기능 명세.
 
 - DB: Supabase (PostgreSQL) · 인증: Supabase Auth
-- 마이그레이션: `supabase/migrations/0001` → `0006` 순서로 실행
-- 파일 저장: Supabase Storage `thumbnails` 버킷 (공개 읽기)
+- 마이그레이션: `supabase/migrations/0001` → `0007` 순서로 실행 (또는 합본 `supabase/setup.sql` 을 한 번에)
+- 파일 저장: Supabase Storage `thumbnails`(이미지) · `files`(MD 첨부) 버킷 (공개 읽기)
 
 ---
 
@@ -65,6 +65,8 @@ erDiagram
     text pricing "free | freemium | paid"
     text_arr tech_stack
     text version
+    text md_url "첨부 MD 파일"
+    text md_name
     text_arr tags
     timestamptz created_at
     timestamptz updated_at
@@ -153,6 +155,7 @@ erDiagram
 | pricing | text | free/freemium/paid | 무료·부분 유료·유료 |
 | tech_stack | text[] | 최대 10개 | 기술 스택 |
 | version | text | ≤30자 | 버전 |
+| md_url / md_name | text | .md, 1MB | **첨부 MD 파일** (프롬프트·가이드·README). 상세에서 미리보기 + 다운로드 + 한 번에 복사 |
 | download_count | integer | 기본 0 | **다운로드 수** = 써보기 클릭 수 (`/go/{id}`, 같은 브라우저 하루 1회) |
 | tags | text[] | 최대 5개 | 태그 |
 | created_at / updated_at | timestamptz | | 수정 시 서버가 updated_at 갱신 |
@@ -248,7 +251,7 @@ PK `(user_id, project_id)` → 한 사람이 한 프로젝트에 한 번만. 다
 3. 홍보 내용 — 특징(한 줄에 하나), 자세한 설명, 설치·사용 방법, 태그
 4. 연락받을 곳 — 이메일·오픈채팅·SNS
 
-상세 페이지: **이미지 슬라이드** → 제목·한 줄 소개 → 가격·플랫폼·버전·업데이트일 → Hype/써보기/GitHub → **특징** → 소개 → **데모 영상** → **기술 스택** → **설치 방법** → 태그 → **연락처** → 후기.
+상세 페이지: **이미지 슬라이드** → 제목·한 줄 소개 → 가격·플랫폼·버전·업데이트일 → Hype/써보기/GitHub → **특징** → 소개 → **데모 영상** → **기술 스택** → **MD 파일** → **설치 방법** → 태그 → **연락처** → 후기.
 
 삭제는 확인창을 한 번 거친다. 다른 사람 프로젝트에는 "신고" 버튼이 보인다.
 
@@ -272,7 +275,7 @@ PK `(user_id, project_id)` → 한 사람이 한 프로젝트에 한 번만. 다
 
 ## 6. 설정 체크리스트
 
-1. Supabase SQL Editor 에서 `0001` → `0002` → `0003` → `0004` → `0005` → `0006` 실행
+1. Supabase SQL Editor 에 `supabase/setup.sql`(0001~0007 합본) 전체를 붙여넣고 Run
 2. 첫 관리자 지정: `update profiles set role = 'admin' where username = '<내 아이디>';` (먼저 한 번 로그인해야 행이 생긴다)
 3. Authentication → Providers: Kakao · Google · GitHub 켜고 각 개발자 콘솔의 Client ID/Secret 입력
 4. Authentication → URL Configuration: Site URL 과 Redirect URLs 에 `https://<도메인>/auth/callback`, `http://localhost:3000/auth/callback`

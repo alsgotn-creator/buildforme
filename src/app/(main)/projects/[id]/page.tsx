@@ -1,10 +1,11 @@
-import { CalendarDays, CheckCircle2, ExternalLink, Flame, Layers, Mail, Pencil, PlayCircle, Star, Tag, Terminal, Trash2 } from "lucide-react";
+import { CalendarDays, CheckCircle2, Download, ExternalLink, FileText, Flame, Layers, Mail, Pencil, PlayCircle, Star, Tag, Terminal, Trash2 } from "lucide-react";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { connection } from "next/server";
 import { Suspense } from "react";
 import { ConfirmButton } from "@/components/ui/ConfirmButton";
+import { CopyButton } from "@/components/ui/CopyButton";
 import { ReportForm } from "@/components/ui/ReportForm";
 import { GithubIcon } from "@/components/ui/BrandIcons";
 import { Slider } from "@/components/project/Slider";
@@ -97,6 +98,13 @@ async function ProjectView({ params, searchParams }: PageProps<"/projects/[id]">
   const yt = youtubeId(p.video_url);
   const updated = p.updated_at ?? p.created_at;
   const h2 = "flex items-center gap-2 text-xl font-extrabold tracking-[-0.03em]";
+  // 첨부 MD: 샘플은 본문을 갖고 있고, 실제 프로젝트는 Storage 에서 읽는다(미리보기용, 200KB 까지)
+  const mdText: string | null =
+    (p as { md_text?: string }).md_text ??
+    (p.md_url && /^https?:\/\//i.test(p.md_url)
+      ? await fetch(p.md_url).then((r) => (r.ok ? r.arrayBuffer() : null)).then((b) => (b ? new TextDecoder("utf-8").decode(b.slice(0, 200_000)) : null)).catch(() => null)
+      : null);
+  const mdName: string = p.md_name ?? "README.md";
   const chip = "flex h-12 items-center gap-2 rounded-[14px] bg-surface px-5 font-semibold hover:bg-border";
 
   return (
@@ -193,6 +201,27 @@ async function ProjectView({ params, searchParams }: PageProps<"/projects/[id]">
           <ul className="mt-3 flex flex-wrap gap-2">
             {stack.map((t) => <li key={t} className="rounded-lg bg-surface px-3 py-1.5 text-sm font-semibold">{t}</li>)}
           </ul>
+        </section>
+      )}
+
+      {mdText && (
+        <section className="mt-10">
+          <h2 className={h2}><FileText size={20} aria-hidden /> MD 파일</h2>
+          <div className="mt-4 overflow-hidden rounded-2xl border border-border">
+            <div className="flex flex-wrap items-center justify-between gap-2 border-b border-border bg-surface px-4 py-2.5">
+              <span className="flex items-center gap-1.5 text-sm font-semibold"><FileText size={16} aria-hidden /> {mdName}</span>
+              <span className="flex gap-1.5">
+                <CopyButton text={mdText} className="flex h-9 items-center gap-1.5 rounded-lg bg-white px-3 text-sm font-semibold hover:bg-border" />
+                {p.md_url && (
+                  // Supabase Storage 는 ?download=파일명 으로 다운로드 응답을 준다
+                  <a href={p.md_url.startsWith("http") ? `${p.md_url}?download=${encodeURIComponent(mdName)}` : p.md_url} download={mdName} className="flex h-9 items-center gap-1.5 rounded-lg bg-primary px-3 text-sm font-semibold text-white hover:bg-primary-hover">
+                    <Download size={16} aria-hidden /> 다운로드
+                  </a>
+                )}
+              </span>
+            </div>
+            <pre className="max-h-96 overflow-auto whitespace-pre-wrap break-words p-4 font-mono text-sm leading-6">{mdText}</pre>
+          </div>
         </section>
       )}
 

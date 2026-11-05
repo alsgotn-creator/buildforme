@@ -51,5 +51,6 @@ export const PROJECT_ERRORS: Record<string, string> = {
   url: "링크는 http:// 또는 https:// 로 시작해야 해요.",
   save: "저장에 실패했어요. 다시 시도해 주세요.",
   image: "썸네일은 PNG·JPG·WEBP·GIF, 3MB 이하만 올릴 수 있어요.",
-  upload: "이미지 업로드에 실패했어요. 다시 시도해 주세요.",
+  upload: "파일 업로드에 실패했어요. 다시 시도해 주세요.",
+  md: "MD 파일은 .md 확장자, 1MB 이하만 올릴 수 있어요.",
 };
