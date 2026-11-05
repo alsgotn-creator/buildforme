@@ -32,7 +32,7 @@ async function NewProjectForm({ searchParams }: PageProps<"/projects/new">) {
   return (
     <main className="mx-auto my-10 w-[calc(100%-2rem)] rounded-3xl bg-white px-6 py-10 sm:px-10 max-w-2xl">
       <h1 className="text-3xl font-bold">프로젝트 올리기</h1>
-      <p className="mt-2 text-body">4단계만 채우면 나만의 홍보 페이지가 완성돼요.</p>
+      <p className="mt-2 text-body">5단계만 채우면 나만의 홍보 페이지가 완성돼요.</p>
       {typeof error === "string" && PROJECT_ERRORS[error] && (
         <p className="mt-4 text-sm text-danger">{PROJECT_ERRORS[error]}</p>
       )}

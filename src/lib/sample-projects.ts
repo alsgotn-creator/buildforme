@@ -6,11 +6,17 @@ const s = (i: number, title: string, tagline: string, kind: string, hype: number
   id: `sample-${i}`, title, tagline, kind, category, download_count: DL[i], thumbnail_url: `/samples/${i}.webp`, hypes: [{ count: hype }], profiles: { username: "sample" },
 });
 
-export const SAMPLE_PROJECTS: (CardProject & { features?: string[]; install_guide?: string; contact?: string })[] = [
+export const SAMPLE_PROJECTS: (CardProject & { features?: string[]; install_guide?: string; contact?: string; screenshots?: string[]; platforms?: string[]; pricing?: string; tech_stack?: string[]; version?: string; tags?: string[] })[] = [
   {
     ...s(1, "대화할수록 똑똑해지는 AI 메모", "쓸수록 나를 닮아가는 노트 앱", "launch", 128, "ai"),
     features: ["메모를 쓰면 AI가 자동으로 태그 정리", "음성 메모 → 텍스트 변환", "로그인 없이 바로 사용", "마크다운 내보내기"],
     contact: "hello@example.com",
+    screenshots: ["/samples/3.webp", "/samples/9.webp", "/samples/5.webp"],
+    platforms: ["web", "ios", "android"],
+    pricing: "freemium",
+    tech_stack: ["Next.js", "Supabase", "OpenAI API", "Tailwind CSS"],
+    version: "v1.2.0",
+    tags: ["메모", "AI", "생산성"],
     install_guide: "git clone https://github.com/example/ai-memo\ncd ai-memo\nnpm install\nnpm run dev",
   },
   s(2, "볼 때마다 귀여운 나만의 캐릭터", "오늘 기분으로 캐릭터를 만들어요", "launch", 96, "design"),

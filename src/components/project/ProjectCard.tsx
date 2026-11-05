@@ -65,8 +65,8 @@ export function ProjectCard({ p, index = 0, span = "" }: { p: CardProject; index
       <div className="relative flex h-full flex-col justify-between p-5">
         <div>
           <span className="flex items-center gap-1 text-xs font-semibold opacity-80"><cat.Icon size={14} aria-hidden /> {cat.label} · {p.kind === "personal_tool" ? "개인용" : "출시"}</span>
-          <h2 className="mt-2 line-clamp-3 text-xl font-bold leading-snug">{p.title}</h2>
-          {p.tagline && <p className="mt-1 line-clamp-2 text-sm opacity-80">{p.tagline}</p>}
+          <h2 className="mt-2 line-clamp-3 text-xl font-extrabold leading-[1.25] tracking-[-0.03em]">{p.title}</h2>
+          {p.tagline && <p className="mt-1 line-clamp-2 text-sm font-medium leading-snug tracking-[-0.02em] opacity-85">{p.tagline}</p>}
         </div>
         <div className="flex items-center justify-between text-xs">
           <span className="flex gap-1.5">

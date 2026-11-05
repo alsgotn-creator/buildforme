@@ -1,4 +1,6 @@
 import { CATEGORIES } from "@/lib/categories";
+import { PLATFORMS, PRICING } from "@/lib/project-meta";
+import { GalleryField } from "./GalleryField";
 import { ThumbnailField } from "./ThumbnailField";
 
 const input = "mt-1.5 w-full rounded-md border border-border px-3 py-3 font-normal outline-none focus:border-primary";
@@ -17,6 +19,12 @@ type Defaults = {
   features?: string[];
   install_guide?: string | null;
   contact?: string | null;
+  screenshots?: string[];
+  video_url?: string | null;
+  platforms?: string[];
+  pricing?: string | null;
+  tech_stack?: string[];
+  version?: string | null;
 };
 
 function Section({ step, title, children }: { step: number; title: string; children: React.ReactNode }) {
@@ -59,6 +67,11 @@ export function ProjectFields({ d = {} }: { d?: Defaults }) {
           </label>
         </div>
         <ThumbnailField defaultUrl={d.thumbnail_url} />
+        <GalleryField defaultUrls={d.screenshots ?? []} />
+        <label className="block text-sm font-semibold">데모 영상 주소
+          <input name="video_url" type="url" placeholder="https://youtu.be/..." defaultValue={d.video_url ?? ""} className={input} />
+          <span className={hint}>YouTube 주소면 상세 페이지에서 바로 재생돼요.</span>
+        </label>
       </Section>
 
       <Section step={2} title="도메인 · 링크">
@@ -88,7 +101,43 @@ export function ProjectFields({ d = {} }: { d?: Defaults }) {
         </label>
       </Section>
 
-      <Section step={4} title="연락받을 곳">
+      <Section step={4} title="상세 정보">
+        <fieldset>
+          <legend className="text-sm font-semibold">지원 플랫폼</legend>
+          <div className="mt-2 flex flex-wrap gap-2">
+            {PLATFORMS.map((pl) => (
+              <label key={pl.key} className="cursor-pointer">
+                <input type="checkbox" name="platforms" value={pl.key} defaultChecked={d.platforms?.includes(pl.key)} className="peer sr-only" />
+                <span className="flex h-9 items-center gap-1.5 rounded-full bg-surface px-4 text-sm font-semibold text-body peer-checked:bg-foreground peer-checked:text-white peer-focus-visible:ring-2 peer-focus-visible:ring-primary">
+                  <pl.Icon size={16} aria-hidden /> {pl.label}
+                </span>
+              </label>
+            ))}
+          </div>
+        </fieldset>
+        <fieldset>
+          <legend className="text-sm font-semibold">가격</legend>
+          <div className="mt-2 flex flex-wrap gap-2">
+            {PRICING.map((pr) => (
+              <label key={pr.key} className="cursor-pointer">
+                <input type="radio" name="pricing" value={pr.key} defaultChecked={d.pricing === pr.key} className="peer sr-only" />
+                <span className="flex h-9 items-center rounded-full bg-surface px-4 text-sm font-semibold text-body peer-checked:bg-foreground peer-checked:text-white peer-focus-visible:ring-2 peer-focus-visible:ring-primary">{pr.label}</span>
+              </label>
+            ))}
+          </div>
+        </fieldset>
+        <div className="grid gap-5 sm:grid-cols-[1fr_160px]">
+          <label className="block text-sm font-semibold">기술 스택
+            <input name="tech_stack" defaultValue={d.tech_stack?.join(", ")} placeholder="Next.js, Supabase, Tailwind" className={input} />
+            <span className={hint}>쉼표로 구분, 최대 10개.</span>
+          </label>
+          <label className="block text-sm font-semibold">버전
+            <input name="version" maxLength={30} defaultValue={d.version ?? ""} placeholder="v1.0.0" className={input} />
+          </label>
+        </div>
+      </Section>
+
+      <Section step={5} title="연락받을 곳">
         <label className="block text-sm font-semibold">연락처
           <input name="contact" maxLength={200} defaultValue={d.contact ?? ""} placeholder="이메일, 오픈채팅·인스타그램 링크 등" className={input} />
           <span className={hint}>제휴·피드백 문의를 받을 곳이에요. 상세 페이지에 공개돼요.</span>

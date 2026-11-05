@@ -11,10 +11,10 @@ const HERO_WORDS = ["개발", "업무", "디자인", "공부", "게임", "기록
 
 // 등록 방법 안내 (홈 상단)
 const STEPS: { Icon: LucideIcon; title: string; desc: string }[] = [
-  { Icon: UserPlus, title: "가입하기", desc: "카카오·구글·GitHub 또는 이메일로 바로 시작해요." },
-  { Icon: PenLine, title: "프로젝트 소개", desc: "프로젝트명, 한 줄 소개, 카테고리, 썸네일을 넣어요." },
-  { Icon: Globe, title: "도메인 · 특징", desc: "써볼 수 있는 주소와 특징, 설치 방법을 적어요." },
-  { Icon: Mail, title: "연락처 남기고 공개", desc: "연락받을 곳을 적으면 Hype·후기·제휴 문의가 와요." },
+  { Icon: UserPlus, title: "가입", desc: "소셜·이메일로 10초" },
+  { Icon: PenLine, title: "소개", desc: "이름·한 줄 소개·이미지" },
+  { Icon: Globe, title: "도메인 · 특징", desc: "써볼 주소와 장점" },
+  { Icon: Mail, title: "연락처", desc: "문의 받을 곳 남기기" },
 ];
 
 const GRID = "grid auto-rows-[220px] grid-cols-1 gap-2 md:grid-cols-4 md:grid-flow-dense";
@@ -127,7 +127,7 @@ async function Browse({ searchParams }: PageProps<"/">) {
         <section>
           <div className="mb-4 flex flex-wrap items-end justify-between gap-3">
             <div>
-              <h2 className="text-2xl font-bold">{title}</h2>
+              <h2 className="text-2xl font-black tracking-[-0.03em]">{title}</h2>
               {f.q && (
                 <Link href={href(f, { q: "" })} className="inline-flex items-center gap-1 text-sm text-muted hover:text-body">
                   검색어 지우기 <X size={14} aria-hidden />
@@ -226,44 +226,38 @@ export default function Home(props: PageProps<"/">) {
   return (
     <main className="mx-auto w-full max-w-6xl px-4 pb-16">
       <section className="py-14 text-center sm:py-20">
-        <h1 className="text-4xl font-bold leading-tight sm:text-5xl sm:leading-[1.3]">
+        <h1 className="text-4xl font-black leading-[1.15] tracking-[-0.04em] sm:text-6xl sm:leading-[1.12]">
           내가 <RotatingText words={HERO_WORDS} />하려고 만든 앱,
           <br />
           모두에게 보여주세요
         </h1>
-        <p className="mt-4 text-body">직접 만든 앱·웹을 올리고 피드백과 Hype를 받아보세요.</p>
+        <p className="mt-4 text-lg font-semibold leading-snug tracking-[-0.02em] text-body">직접 만든 앱·웹을 올리고 피드백과 Hype를 받아보세요.</p>
         <Link
           href="/projects/new"
-          className="mt-8 inline-flex h-14 items-center rounded-button bg-primary px-7 text-[17px] font-semibold text-white hover:bg-primary-hover active:scale-[0.96]"
+          className="mt-8 inline-flex h-14 items-center rounded-button bg-primary px-7 text-[17px] font-bold tracking-[-0.02em] text-white hover:bg-primary-hover active:scale-[0.96]"
         >
           프로젝트 올리기
         </Link>
       </section>
 
-      <section aria-labelledby="howto" className="mb-16 rounded-3xl bg-white p-6 sm:p-8">
-        <div className="flex flex-wrap items-end justify-between gap-3">
-          <div>
-            <h2 id="howto" className="text-2xl font-bold">이렇게 등록하세요</h2>
-            <p className="mt-1 text-body">4단계면 내 웹·앱 홍보 페이지가 완성돼요.</p>
-          </div>
-          <Link href="/projects/new" className="inline-flex items-center gap-1 font-semibold text-primary hover:text-primary-hover">
-            등록하러 가기 <ArrowRight size={18} aria-hidden />
+      <section aria-labelledby="howto" className="mb-8 rounded-2xl bg-white px-4 py-3 sm:px-5">
+        <div className="flex flex-wrap items-center gap-x-5 gap-y-2">
+          <h2 id="howto" className="text-base font-extrabold tracking-[-0.03em]">이렇게 등록하세요</h2>
+          <ol className="flex flex-1 flex-wrap items-center gap-x-4 gap-y-1.5">
+            {STEPS.map((s, i) => (
+              <li key={s.title} className="flex items-center gap-1.5 text-sm leading-tight tracking-[-0.02em]">
+                <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-weak-bg text-weak-fg">
+                  <s.Icon size={13} aria-hidden />
+                </span>
+                <span className="font-extrabold">{i + 1}. {s.title}</span>
+                <span className="hidden font-medium text-muted xl:inline">{s.desc}</span>
+              </li>
+            ))}
+          </ol>
+          <Link href="/projects/new" className="inline-flex items-center gap-0.5 text-sm font-bold text-primary hover:text-primary-hover">
+            등록하기 <ArrowRight size={15} aria-hidden />
           </Link>
         </div>
-        <ol className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-          {STEPS.map((s, i) => (
-            <li key={s.title} className="rounded-2xl bg-surface p-5">
-              <div className="flex items-center justify-between">
-                <span className="flex h-11 w-11 items-center justify-center rounded-full bg-weak-bg text-weak-fg">
-                  <s.Icon size={22} aria-hidden />
-                </span>
-                <span className="text-sm font-bold text-muted">STEP {i + 1}</span>
-              </div>
-              <h3 className="mt-4 font-bold">{s.title}</h3>
-              <p className="mt-1 text-sm text-body">{s.desc}</p>
-            </li>
-          ))}
-        </ol>
       </section>
 
       <Suspense fallback={<BrowseSkeleton />}>

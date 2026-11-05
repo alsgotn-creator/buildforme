@@ -1,4 +1,4 @@
-import { CheckCircle2, ExternalLink, Flame, Mail, Pencil, Star, Terminal, Trash2 } from "lucide-react";
+import { CalendarDays, CheckCircle2, ExternalLink, Flame, Layers, Mail, Pencil, PlayCircle, Star, Tag, Terminal, Trash2 } from "lucide-react";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
@@ -7,7 +7,9 @@ import { Suspense } from "react";
 import { ConfirmButton } from "@/components/ui/ConfirmButton";
 import { ReportForm } from "@/components/ui/ReportForm";
 import { GithubIcon } from "@/components/ui/BrandIcons";
+import { Slider } from "@/components/project/Slider";
 import { categoryOf } from "@/lib/categories";
+import { PLATFORMS, PRICING, youtubeId } from "@/lib/project-meta";
 import { SAMPLE_PROJECTS } from "@/lib/sample-projects";
 import { getUser, getViewer } from "@/lib/supabase/auth";
 import { db } from "@/lib/supabase/server";
@@ -87,22 +89,39 @@ async function ProjectView({ params, searchParams }: PageProps<"/projects/[id]">
   const canManage = !!viewer && (viewer.id === p.owner_id || viewer.isAdmin);
   const cat = categoryOf(p.category);
   const features: string[] = p.features ?? [];
+  const slides = [p.thumbnail_url, ...((p.screenshots as string[] | undefined) ?? [])].filter((x): x is string => !!x);
+  const platforms = PLATFORMS.filter((x) => (p.platforms as string[] | undefined)?.includes(x.key));
+  const pricing = PRICING.find((x) => x.key === p.pricing);
+  const stack: string[] = p.tech_stack ?? [];
+  const tags: string[] = p.tags ?? [];
+  const yt = youtubeId(p.video_url);
+  const updated = p.updated_at ?? p.created_at;
+  const h2 = "flex items-center gap-2 text-xl font-extrabold tracking-[-0.03em]";
   const chip = "flex h-12 items-center gap-2 rounded-[14px] bg-surface px-5 font-semibold hover:bg-border";
 
   return (
     <main className="mx-auto my-10 w-[calc(100%-2rem)] max-w-3xl rounded-3xl bg-white px-6 py-10 sm:px-10">
-      {p.thumbnail_url && (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img src={p.thumbnail_url} alt="" className="mb-6 aspect-[16/10] w-full rounded-2xl bg-surface object-cover" />
-      )}
+      <Slider images={slides} title={p.title} />
       <span className="inline-flex items-center gap-1.5 rounded-md bg-weak-bg px-2 py-1 text-xs font-semibold text-weak-fg">
         <cat.Icon size={14} aria-hidden /> {cat.label} · {p.kind === "personal_tool" ? "개인용 도구" : "출시 서비스"}
       </span>
-      <h1 className="mt-3 text-3xl font-bold">{p.title}</h1>
-      {p.tagline && <p className="mt-1 text-body">{p.tagline}</p>}
+      <h1 className="mt-3 text-3xl font-black leading-tight tracking-[-0.04em] sm:text-4xl">{p.title}</h1>
+      {p.tagline && <p className="mt-1.5 text-lg font-medium leading-snug tracking-[-0.02em] text-body">{p.tagline}</p>}
       <p className="mt-2 text-sm text-muted">
         <Link href={`/u/${owner?.username}`} className="hover:text-body">@{owner?.username}</Link>
       </p>
+
+      {/* 한눈에 보는 정보: 가격 · 플랫폼 · 버전 · 업데이트일 */}
+      {(pricing || platforms.length > 0 || p.version || updated) && (
+        <ul className="mt-4 flex flex-wrap gap-1.5 text-xs font-semibold" aria-label="프로젝트 정보">
+          {pricing && <li className={`rounded-md px-2 py-1 ${pricing.cls}`}>{pricing.label}</li>}
+          {platforms.map((pl) => (
+            <li key={pl.key} className="flex items-center gap-1 rounded-md bg-surface px-2 py-1 text-body"><pl.Icon size={13} aria-hidden /> {pl.label}</li>
+          ))}
+          {p.version && <li className="rounded-md bg-surface px-2 py-1 text-body">{p.version}</li>}
+          {updated && <li className="flex items-center gap-1 rounded-md bg-surface px-2 py-1 text-body"><CalendarDays size={13} aria-hidden /> {new Date(updated).toLocaleDateString("ko-KR")} 업데이트</li>}
+        </ul>
+      )}
 
       <div className="mt-6 flex flex-wrap gap-2">
         <form action={toggleHype}>
@@ -127,11 +146,9 @@ async function ProjectView({ params, searchParams }: PageProps<"/projects/[id]">
         <div className="mt-4"><ReportForm type="project" id={id} back={`/projects/${id}`} status={typeof reported === "string" ? reported : undefined} /></div>
       )}
 
-      {p.description && <p className="mt-8 whitespace-pre-wrap leading-7 text-body">{p.description}</p>}
-
       {features.length > 0 && (
         <section className="mt-10">
-          <h2 className="text-xl font-semibold">특징</h2>
+          <h2 className={h2}>특징</h2>
           <ul className="mt-4 grid gap-2 sm:grid-cols-2">
             {features.map((f) => (
               <li key={f} className="flex items-start gap-2 rounded-2xl bg-surface p-4">
@@ -143,11 +160,55 @@ async function ProjectView({ params, searchParams }: PageProps<"/projects/[id]">
         </section>
       )}
 
+      {p.description && (
+        <section className="mt-10">
+          <h2 className={h2}>소개</h2>
+          <p className="mt-3 whitespace-pre-wrap leading-7 text-body">{p.description}</p>
+        </section>
+      )}
+
+      {p.video_url && (
+        <section className="mt-10">
+          <h2 className={h2}><PlayCircle size={20} aria-hidden /> 데모 영상</h2>
+          {yt ? (
+            <div className="mt-4 aspect-video overflow-hidden rounded-2xl bg-foreground">
+              <iframe
+                src={`https://www.youtube-nocookie.com/embed/${yt}`}
+                title={`${p.title} 데모 영상`}
+                className="h-full w-full"
+                loading="lazy"
+                allow="accelerometer; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
+              />
+            </div>
+          ) : (
+            <a href={p.video_url} target="_blank" rel="noopener noreferrer" className="mt-3 inline-flex items-center gap-1 font-semibold text-primary underline">영상 보러 가기 <ExternalLink size={16} aria-hidden /></a>
+          )}
+        </section>
+      )}
+
+      {stack.length > 0 && (
+        <section className="mt-10">
+          <h2 className={h2}><Layers size={20} aria-hidden /> 기술 스택</h2>
+          <ul className="mt-3 flex flex-wrap gap-2">
+            {stack.map((t) => <li key={t} className="rounded-lg bg-surface px-3 py-1.5 text-sm font-semibold">{t}</li>)}
+          </ul>
+        </section>
+      )}
+
       {p.install_guide && (
         <section className="mt-10">
-          <h2 className="flex items-center gap-2 text-xl font-semibold"><Terminal size={20} aria-hidden /> 설치 · 사용 방법</h2>
+          <h2 className={h2}><Terminal size={20} aria-hidden /> 설치 · 사용 방법</h2>
           <pre className="mt-4 overflow-x-auto whitespace-pre-wrap rounded-2xl bg-foreground p-5 font-mono text-sm leading-6 text-white">{p.install_guide}</pre>
         </section>
+      )}
+
+      {tags.length > 0 && (
+        <ul className="mt-8 flex flex-wrap gap-1.5" aria-label="태그">
+          {tags.map((t) => (
+            <li key={t}><Link href={`/?q=${encodeURIComponent(t)}`} className="flex items-center gap-1 rounded-full bg-weak-bg px-3 py-1 text-sm font-semibold text-weak-fg hover:bg-[#c9e2ff]"><Tag size={13} aria-hidden /> {t}</Link></li>
+          ))}
+        </ul>
       )}
 
       {p.contact && (
@@ -166,7 +227,7 @@ async function ProjectView({ params, searchParams }: PageProps<"/projects/[id]">
         </section>
       )}
 
-      <h2 className="mt-12 text-xl font-semibold">후기 {reviews?.length ?? 0}</h2>
+      <h2 className={`mt-12 ${h2}`}>후기 {reviews?.length ?? 0}</h2>
       {sample ? (
         <p className="mt-4 text-sm text-muted">샘플 프로젝트에는 후기를 남길 수 없어요.</p>
       ) : viewer ? (

@@ -3,7 +3,7 @@
 개인이 만든 웹·앱(이하 **프로젝트**)을 등록·홍보하고, 커뮤니티에서 자유롭게 이야기하는 사이트의 DB 구조와 기능 명세.
 
 - DB: Supabase (PostgreSQL) · 인증: Supabase Auth
-- 마이그레이션: `supabase/migrations/0001` → `0005` 순서로 실행
+- 마이그레이션: `supabase/migrations/0001` → `0006` 순서로 실행
 - 파일 저장: Supabase Storage `thumbnails` 버킷 (공개 읽기)
 
 ---
@@ -59,6 +59,12 @@ erDiagram
     text install_guide "설치·사용 방법"
     text contact "연락받을 곳"
     int download_count "써보기 클릭 수"
+    text_arr screenshots "슬라이드 이미지 최대 8장"
+    text video_url "데모 영상"
+    text_arr platforms "web ios android windows mac linux extension"
+    text pricing "free | freemium | paid"
+    text_arr tech_stack
+    text version
     text_arr tags
     timestamptz created_at
     timestamptz updated_at
@@ -141,6 +147,12 @@ erDiagram
 | features | text[] | 최대 10개 · 각 100자 | **특징** (상세에 체크리스트) |
 | install_guide | text | ≤5000자 | **설치·사용 방법** (상세에 코드 블록) |
 | contact | text | ≤200자 | **연락받을 곳** (이메일이면 mailto, 링크면 새 창) |
+| screenshots | text[] | 최대 8장 | **슬라이드 이미지** (상세 상단 슬라이드: 썸네일 → 스크린샷 순). 브라우저 → Storage 직접 업로드(서명 URL) |
+| video_url | text | http(s) 만 | **데모 영상** (YouTube 면 상세에서 임베드 재생) |
+| platforms | text[] | 7종 중 선택 | 웹·iOS·Android·Windows·macOS·Linux·브라우저 확장 |
+| pricing | text | free/freemium/paid | 무료·부분 유료·유료 |
+| tech_stack | text[] | 최대 10개 | 기술 스택 |
+| version | text | ≤30자 | 버전 |
 | download_count | integer | 기본 0 | **다운로드 수** = 써보기 클릭 수 (`/go/{id}`, 같은 브라우저 하루 1회) |
 | tags | text[] | 최대 5개 | 태그 |
 | created_at / updated_at | timestamptz | | 수정 시 서버가 updated_at 갱신 |
@@ -230,13 +242,13 @@ PK `(user_id, project_id)` → 한 사람이 한 프로젝트에 한 번만. 다
 - 모든 경로는 `/auth/callback` 또는 로그인 액션에서 `ensureProfile()` 로 프로필을 만든다. username 은 소셜 아이디 → 이메일 앞부분 순, 중복이면 `-{id 6자리}` 를 붙인다.
 
 ### 5.2 프로젝트(상품) 등록 · 수정 · 삭제
-등록 폼은 홍보 순서대로 4단계:
+등록 폼은 홍보 순서대로 5단계 (기본 정보에 슬라이드 이미지·데모 영상, 4단계 "상세 정보"에 플랫폼·가격·기술 스택·버전):
 1. 기본 정보 — 프로젝트명*, 한 줄 소개, 카테고리, 종류, 썸네일(파일 업로드 + 미리보기, 또는 이미지 주소)
 2. 도메인 · 링크 — 서비스 도메인, GitHub
 3. 홍보 내용 — 특징(한 줄에 하나), 자세한 설명, 설치·사용 방법, 태그
 4. 연락받을 곳 — 이메일·오픈채팅·SNS
 
-상세 페이지: 썸네일 → 제목·소개 → Hype/써보기/GitHub → 설명 → **특징 체크리스트** → **설치 방법 코드 블록** → **연락처** → 후기.
+상세 페이지: **이미지 슬라이드** → 제목·한 줄 소개 → 가격·플랫폼·버전·업데이트일 → Hype/써보기/GitHub → **특징** → 소개 → **데모 영상** → **기술 스택** → **설치 방법** → 태그 → **연락처** → 후기.
 
 삭제는 확인창을 한 번 거친다. 다른 사람 프로젝트에는 "신고" 버튼이 보인다.
 
@@ -260,7 +272,7 @@ PK `(user_id, project_id)` → 한 사람이 한 프로젝트에 한 번만. 다
 
 ## 6. 설정 체크리스트
 
-1. Supabase SQL Editor 에서 `0001` → `0002` → `0003` → `0004` → `0005` 실행
+1. Supabase SQL Editor 에서 `0001` → `0002` → `0003` → `0004` → `0005` → `0006` 실행
 2. 첫 관리자 지정: `update profiles set role = 'admin' where username = '<내 아이디>';` (먼저 한 번 로그인해야 행이 생긴다)
 3. Authentication → Providers: Kakao · Google · GitHub 켜고 각 개발자 콘솔의 Client ID/Secret 입력
 4. Authentication → URL Configuration: Site URL 과 Redirect URLs 에 `https://<도메인>/auth/callback`, `http://localhost:3000/auth/callback`

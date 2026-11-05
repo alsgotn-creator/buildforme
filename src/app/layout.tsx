@@ -5,12 +5,12 @@ import "./globals.css";
 // DESIGN.md safe default (Toss Product Sans 대체). 브랜드 폰트 아님.
 const notoSansKr = Noto_Sans_KR({
   variable: "--font-noto-sans-kr",
-  weight: ["400", "600", "700"],
+  weight: ["400", "500", "600", "700", "800", "900"],
   subsets: ["latin"],
 });
 
 export const metadata: Metadata = {
-  title: "showcase-hub",
+  title: "showcase — build for me",
   description: "내가 만든 앱·웹을 올리고 피드백을 받는 커뮤니티",
 };
 
