@@ -1,3 +1,4 @@
+import { Flame } from "lucide-react";
 import Link from "next/link";
 import { categoryOf } from "@/lib/categories";
 
@@ -41,6 +42,7 @@ export const SPANS = [
 export function ProjectCard({ p, index = 0, span = "" }: { p: CardProject; index?: number; span?: string }) {
   const owner = Array.isArray(p.profiles) ? p.profiles[0] : p.profiles;
   const t = THEMES[index % THEMES.length];
+  const cat = categoryOf(p.category);
   const light = !t.dark && !p.thumbnail_url;
   return (
     <Link
@@ -61,13 +63,13 @@ export function ProjectCard({ p, index = 0, span = "" }: { p: CardProject; index
       )}
       <div className="relative flex h-full flex-col justify-between p-5">
         <div>
-          <span className="text-xs font-semibold opacity-80">{categoryOf(p.category).emoji} {categoryOf(p.category).label} · {p.kind === "personal_tool" ? "개인용" : "출시"}</span>
+          <span className="flex items-center gap-1 text-xs font-semibold opacity-80"><cat.Icon size={14} aria-hidden /> {cat.label} · {p.kind === "personal_tool" ? "개인용" : "출시"}</span>
           <h2 className="mt-2 line-clamp-3 text-xl font-bold leading-snug">{p.title}</h2>
           {p.tagline && <p className="mt-1 line-clamp-2 text-sm opacity-80">{p.tagline}</p>}
         </div>
         <div className="flex items-center justify-between text-xs">
-          <span className={`rounded-full px-2.5 py-1 font-semibold ${light ? "bg-white" : "bg-white/20"}`}>🔥 {p.hypes?.[0]?.count ?? 0}</span>
-          {owner && <span className="opacity-80">@{owner.username}</span>}
+          <span className={`flex items-center gap-1 rounded-full px-2.5 py-1 font-semibold ${light ? "bg-white" : "bg-white/20"}`}><Flame size={14} aria-hidden /> {p.hypes?.[0]?.count ?? 0}</span>
+          {p.id.startsWith("sample-") ? <span className="rounded-full bg-black/30 px-2 py-0.5 font-semibold">예시</span> : owner && <span className="opacity-80">@{owner.username}</span>}
         </div>
       </div>
     </Link>

@@ -4,19 +4,21 @@ import { revalidatePath } from "next/cache";
 import { connection } from "next/server";
 import { Suspense } from "react";
 import { SAMPLE_POSTS, timeAgo, topicOf } from "@/lib/community";
-import { getUser } from "@/lib/supabase/auth";
+import { getUser, getViewer } from "@/lib/supabase/auth";
 import { db } from "@/lib/supabase/server";
 
 const UUID = /^[0-9a-f-]{36}$/i;
 
 async function deletePost(formData: FormData) {
   "use server";
-  const user = await getUser();
+  const viewer = await getViewer();
   const id = String(formData.get("post_id"));
-  if (!user) redirect("/login");
+  if (!viewer) redirect("/login");
   if (!UUID.test(id)) return;
-  // author_id 조건으로 본인 글만 삭제
-  await db.from("posts").delete().eq("id", id).eq("author_id", user.id);
+  // 본인 글만, 관리자는 전부 삭제 가능
+  let q = db.from("posts").delete().eq("id", id);
+  if (!viewer.isAdmin) q = q.eq("author_id", viewer.id);
+  await q;
   redirect("/community");
 }
 
@@ -33,12 +35,14 @@ async function addComment(formData: FormData) {
 
 async function deleteComment(formData: FormData) {
   "use server";
-  const user = await getUser();
+  const viewer = await getViewer();
   const id = String(formData.get("comment_id"));
   const postId = String(formData.get("post_id"));
-  if (!user) redirect("/login");
+  if (!viewer) redirect("/login");
   if (!UUID.test(id) || !UUID.test(postId)) return;
-  await db.from("post_comments").delete().eq("id", id).eq("author_id", user.id);
+  let q = db.from("post_comments").delete().eq("id", id);
+  if (!viewer.isAdmin) q = q.eq("author_id", viewer.id);
+  await q;
   revalidatePath(`/community/${postId}`);
 }
 
@@ -58,7 +62,7 @@ async function PostView({ params }: PageProps<"/community/[id]">) {
     : await Promise.all([
         db.from("posts").select("id,topic,title,body,created_at,author_id,profiles(username)").eq("id", id).maybeSingle(),
         db.from("post_comments").select("id,body,created_at,author_id,profiles(username)").eq("post_id", id).order("created_at"),
-        getUser(),
+        getViewer(),
       ]);
   if (!post) notFound();
   const t = topicOf(post.topic);
@@ -70,13 +74,13 @@ async function PostView({ params }: PageProps<"/community/[id]">) {
         ← 커뮤니티
       </Link>
       <article className="rounded-3xl bg-white px-6 py-8 sm:px-10">
-        <span className={`rounded-md px-2 py-0.5 text-xs font-semibold ${t.cls}`}>{t.emoji} {t.label}</span>
+        <span className={`inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-xs font-semibold ${t.cls}`}><t.Icon size={14} aria-hidden /> {t.label}</span>
         <h1 className="mt-3 text-2xl font-bold leading-snug sm:text-3xl">{post.title}</h1>
         <div className="mt-3 flex items-center justify-between gap-3 border-b border-border pb-5 text-sm text-muted">
           <span>
             {author && <Link href={`/u/${author}`} className="font-semibold text-body hover:text-foreground">@{author}</Link>} · {timeAgo(post.created_at)}
           </span>
-          {user?.id === post.author_id && (
+          {user && (user.id === post.author_id || user.isAdmin) && (
             <form action={deletePost}>
               <input type="hidden" name="post_id" value={post.id} />
               <button className="font-semibold text-danger">삭제</button>
@@ -93,7 +97,7 @@ async function PostView({ params }: PageProps<"/community/[id]">) {
             <li key={c.id} className="py-4">
               <div className="flex items-center justify-between text-sm">
                 <span className="font-semibold">@{nameOf(c.profiles)} <span className="font-normal text-muted">· {timeAgo(c.created_at)}</span></span>
-                {user?.id === c.author_id && (
+                {user && (user.id === c.author_id || user.isAdmin) && (
                   <form action={deleteComment}>
                     <input type="hidden" name="comment_id" value={c.id} />
                     <input type="hidden" name="post_id" value={post.id} />

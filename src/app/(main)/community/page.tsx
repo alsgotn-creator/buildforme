@@ -1,3 +1,4 @@
+import { LayoutGrid, MessageCircle } from "lucide-react";
 import Link from "next/link";
 import { Suspense } from "react";
 import { SAMPLE_POSTS, TOPICS, isTopic, timeAgo, topicOf, type PostRow } from "@/lib/community";
@@ -23,14 +24,14 @@ async function PostList({ searchParams }: PageProps<"/community">) {
   return (
     <>
       <nav className="-mx-4 mb-4 flex gap-1.5 overflow-x-auto px-4 pb-1" aria-label="말머리 필터">
-        {[{ key: "", label: "전체", emoji: "🌈" }, ...TOPICS].map((t) => (
+        {[{ key: "", label: "전체", Icon: LayoutGrid }, ...TOPICS].map((t) => (
           <Link
             key={t.key || "all"}
             href={t.key ? `/community?topic=${t.key}` : "/community"}
             aria-current={topic === t.key ? "page" : undefined}
-            className={`flex h-9 shrink-0 items-center rounded-full px-4 text-sm font-semibold ${topic === t.key ? "bg-foreground text-white" : "bg-white text-body hover:bg-surface"}`}
+            className={`flex h-9 shrink-0 items-center gap-1.5 rounded-full px-4 text-sm font-semibold ${topic === t.key ? "bg-foreground text-white" : "bg-white text-body hover:bg-surface"}`}
           >
-            {t.emoji} {t.label}
+            <t.Icon size={16} aria-hidden /> {t.label}
           </Link>
         ))}
       </nav>
@@ -55,7 +56,7 @@ async function PostList({ searchParams }: PageProps<"/community">) {
                     </p>
                   </div>
                   <div className="flex w-12 shrink-0 flex-col items-center justify-center rounded-2xl bg-surface text-sm font-semibold text-body">
-                    <span aria-hidden>💬</span>
+                    <MessageCircle size={16} aria-hidden />
                     <span aria-label={`댓글 ${comments}개`}>{comments}</span>
                   </div>
                 </Link>

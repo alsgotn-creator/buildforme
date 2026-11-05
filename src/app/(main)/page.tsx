@@ -1,3 +1,4 @@
+import { ArrowRight, Globe, LayoutGrid, Mail, PenLine, Rocket, UserPlus, Wrench, X, type LucideIcon } from "lucide-react";
 import Link from "next/link";
 import { Suspense } from "react";
 import { RotatingText } from "@/components/ui/RotatingText";
@@ -8,12 +9,20 @@ import { db } from "@/lib/supabase/server";
 
 const HERO_WORDS = ["개발", "업무", "디자인", "공부", "게임", "기록"];
 
+// 등록 방법 안내 (홈 상단)
+const STEPS: { Icon: LucideIcon; title: string; desc: string }[] = [
+  { Icon: UserPlus, title: "가입하기", desc: "카카오·구글·GitHub 또는 이메일로 바로 시작해요." },
+  { Icon: PenLine, title: "프로젝트 소개", desc: "프로젝트명, 한 줄 소개, 카테고리, 썸네일을 넣어요." },
+  { Icon: Globe, title: "도메인 · 특징", desc: "써볼 수 있는 주소와 특징, 설치 방법을 적어요." },
+  { Icon: Mail, title: "연락처 남기고 공개", desc: "연락받을 곳을 적으면 Hype·후기·제휴 문의가 와요." },
+];
+
 const GRID = "grid auto-rows-[220px] grid-cols-1 gap-2 md:grid-cols-4 md:grid-flow-dense";
 
-const KINDS = [
+const KINDS: { key: string; label: string; Icon?: LucideIcon }[] = [
   { key: "", label: "전체" },
-  { key: "launch", label: "🚀 출시" },
-  { key: "personal_tool", label: "🛠 개인용" },
+  { key: "launch", label: "출시", Icon: Rocket },
+  { key: "personal_tool", label: "개인용", Icon: Wrench },
 ];
 
 type Filters = { q: string; kind: string; cat: string };
@@ -46,29 +55,27 @@ async function Browse({ searchParams }: PageProps<"/">) {
   if (f.q) query = query.or(`title.ilike.%${f.q}%,tagline.ilike.%${f.q}%`);
   const { data } = await query;
 
-  // shortcut: 개발 모드에서 DB 가 비어 있으면 샘플로 디자인 확인. 운영에서는 빈 상태 문구.
+  // shortcut: DB 에 프로젝트가 없으면 예시 카드를 보여준다(초기 오픈용). 실제 글이 쌓이면 SAMPLE_PROJECTS 를 지울 것.
   const projects = data?.length
     ? data
-    : process.env.NODE_ENV === "development"
-      ? SAMPLE_PROJECTS.filter(
+    : SAMPLE_PROJECTS.filter(
           (p) =>
             (!f.kind || p.kind === f.kind) &&
             (!f.cat || p.category === f.cat) &&
             (!f.q || `${p.title} ${p.tagline}`.toLowerCase().includes(f.q.toLowerCase())),
-        )
-      : [];
+        );
 
-  const title = f.q ? `‘${f.q}’ 검색 결과` : f.cat ? `${categoryOf(f.cat).emoji} ${categoryOf(f.cat).label}` : "새로 올라온 프로젝트";
-  const catItem = (key: string, label: string) => {
+  const title = f.q ? `‘${f.q}’ 검색 결과` : f.cat ? categoryOf(f.cat).label : "새로 올라온 프로젝트";
+  const catItem = (key: string, label: string, Icon: LucideIcon) => {
     const active = f.cat === key;
     return (
       <Link
         key={key || "all"}
         href={href(f, { cat: key })}
         aria-current={active ? "page" : undefined}
-        className={`flex h-9 shrink-0 items-center rounded-full px-4 text-sm font-semibold lg:rounded-xl lg:px-3 ${active ? "bg-foreground text-white" : "bg-white text-body hover:bg-surface lg:bg-transparent lg:hover:bg-white"}`}
+        className={`flex h-9 shrink-0 items-center gap-2 rounded-full px-4 text-sm font-semibold lg:rounded-xl lg:px-3 ${active ? "bg-foreground text-white" : "bg-white text-body hover:bg-surface lg:bg-transparent lg:hover:bg-white"}`}
       >
-        {label}
+        <Icon size={16} aria-hidden /> {label}
       </Link>
     );
   };
@@ -80,8 +87,8 @@ async function Browse({ searchParams }: PageProps<"/">) {
         <aside className="mb-5 lg:sticky lg:top-20 lg:mb-0 lg:self-start">
           <p className="mb-2 hidden px-3 text-xs font-semibold text-muted lg:block">카테고리</p>
           <nav aria-label="카테고리" className="-mx-4 flex gap-1.5 overflow-x-auto px-4 pb-1 lg:mx-0 lg:flex-col lg:gap-0.5 lg:overflow-visible lg:px-0">
-            {catItem("", "🌈 전체")}
-            {CATEGORIES.map((c) => catItem(c.key, `${c.emoji} ${c.label}`))}
+            {catItem("", "전체", LayoutGrid)}
+            {CATEGORIES.map((c) => catItem(c.key, c.label, c.Icon))}
           </nav>
         </aside>
 
@@ -90,8 +97,8 @@ async function Browse({ searchParams }: PageProps<"/">) {
             <div>
               <h2 className="text-2xl font-bold">{title}</h2>
               {f.q && (
-                <Link href={href(f, { q: "" })} className="text-sm text-muted hover:text-body">
-                  검색어 지우기 ✕
+                <Link href={href(f, { q: "" })} className="inline-flex items-center gap-1 text-sm text-muted hover:text-body">
+                  검색어 지우기 <X size={14} aria-hidden />
                 </Link>
               )}
             </div>
@@ -101,9 +108,9 @@ async function Browse({ searchParams }: PageProps<"/">) {
                   key={k.key}
                   href={href(f, { kind: k.key })}
                   aria-current={f.kind === k.key ? "page" : undefined}
-                  className={`flex h-9 items-center rounded-full px-4 text-sm font-semibold ${f.kind === k.key ? "bg-foreground text-white" : "bg-white text-body hover:bg-surface"}`}
+                  className={`flex h-9 items-center gap-1.5 rounded-full px-4 text-sm font-semibold ${f.kind === k.key ? "bg-foreground text-white" : "bg-white text-body hover:bg-surface"}`}
                 >
-                  {k.label}
+                  {k.Icon && <k.Icon size={16} aria-hidden />} {k.label}
                 </Link>
               ))}
             </nav>
@@ -173,6 +180,33 @@ export default function Home(props: PageProps<"/">) {
           프로젝트 올리기
         </Link>
       </section>
+
+      <section aria-labelledby="howto" className="mb-16 rounded-3xl bg-white p-6 sm:p-8">
+        <div className="flex flex-wrap items-end justify-between gap-3">
+          <div>
+            <h2 id="howto" className="text-2xl font-bold">이렇게 등록하세요</h2>
+            <p className="mt-1 text-body">4단계면 내 웹·앱 홍보 페이지가 완성돼요.</p>
+          </div>
+          <Link href="/projects/new" className="inline-flex items-center gap-1 font-semibold text-primary hover:text-primary-hover">
+            등록하러 가기 <ArrowRight size={18} aria-hidden />
+          </Link>
+        </div>
+        <ol className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+          {STEPS.map((s, i) => (
+            <li key={s.title} className="rounded-2xl bg-surface p-5">
+              <div className="flex items-center justify-between">
+                <span className="flex h-11 w-11 items-center justify-center rounded-full bg-weak-bg text-weak-fg">
+                  <s.Icon size={22} aria-hidden />
+                </span>
+                <span className="text-sm font-bold text-muted">STEP {i + 1}</span>
+              </div>
+              <h3 className="mt-4 font-bold">{s.title}</h3>
+              <p className="mt-1 text-sm text-body">{s.desc}</p>
+            </li>
+          ))}
+        </ol>
+      </section>
+
       <Suspense fallback={<BrowseSkeleton />}>
         <Browse {...props} />
       </Suspense>

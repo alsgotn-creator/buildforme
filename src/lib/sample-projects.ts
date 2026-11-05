@@ -5,8 +5,13 @@ const s = (i: number, title: string, tagline: string, kind: string, hype: number
   id: `sample-${i}`, title, tagline, kind, category, thumbnail_url: `/samples/${i}.webp`, hypes: [{ count: hype }], profiles: { username: "sample" },
 });
 
-export const SAMPLE_PROJECTS: CardProject[] = [
-  s(1, "대화할수록 똑똑해지는 AI 메모", "쓸수록 나를 닮아가는 노트 앱", "launch", 128, "ai"),
+export const SAMPLE_PROJECTS: (CardProject & { features?: string[]; install_guide?: string; contact?: string })[] = [
+  {
+    ...s(1, "대화할수록 똑똑해지는 AI 메모", "쓸수록 나를 닮아가는 노트 앱", "launch", 128, "ai"),
+    features: ["메모를 쓰면 AI가 자동으로 태그 정리", "음성 메모 → 텍스트 변환", "로그인 없이 바로 사용", "마크다운 내보내기"],
+    contact: "hello@example.com",
+    install_guide: "git clone https://github.com/example/ai-memo\ncd ai-memo\nnpm install\nnpm run dev",
+  },
   s(2, "볼 때마다 귀여운 나만의 캐릭터", "오늘 기분으로 캐릭터를 만들어요", "launch", 96, "design"),
   s(3, "스마트한 하루의 시작 루틴 앱", "날씨·일정·할 일을 한 화면에", "launch", 74, "work"),
   s(4, "음악 추천", "취향 기반 플레이리스트", "personal_tool", 51, "life"),

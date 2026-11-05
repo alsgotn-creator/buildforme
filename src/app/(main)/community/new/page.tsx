@@ -39,8 +39,8 @@ async function NewPostForm({ searchParams }: PageProps<"/community/new">) {
             {TOPICS.map((t, i) => (
               <label key={t.key} className="cursor-pointer">
                 <input type="radio" name="topic" value={t.key} defaultChecked={i === 0} className="peer sr-only" />
-                <span className="flex h-9 items-center rounded-full bg-surface px-4 text-sm font-semibold text-body peer-checked:bg-foreground peer-checked:text-white peer-focus-visible:ring-2 peer-focus-visible:ring-primary">
-                  {t.emoji} {t.label}
+                <span className="flex h-9 items-center gap-1.5 rounded-full bg-surface px-4 text-sm font-semibold text-body peer-checked:bg-foreground peer-checked:text-white peer-focus-visible:ring-2 peer-focus-visible:ring-primary">
+                  <t.Icon size={16} aria-hidden /> {t.label}
                 </span>
               </label>
             ))}

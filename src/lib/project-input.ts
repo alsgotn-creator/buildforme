@@ -22,6 +22,10 @@ export function parseProjectForm(formData: FormData) {
       url: url || null,
       repo_url: repoUrl || null,
       thumbnail_url: thumb || null,
+      // 특징: 한 줄에 하나, 최대 10개 · 줄당 100자
+      features: str("features").split("\n").map((f) => f.trim().slice(0, 100)).filter(Boolean).slice(0, 10),
+      install_guide: str("install_guide").slice(0, 5000) || null,
+      contact: str("contact").slice(0, 200) || null,
       tags: str("tags").split(",").map((t) => t.trim()).filter(Boolean).slice(0, 5),
     },
   };
