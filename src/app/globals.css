@@ -1,0 +1,26 @@
+@import "tailwindcss";
+
+/* docs/DESIGN.md (Toss/TDS) 토큰. 다크모드는 DESIGN.md에 근거 값이 없어 미적용. */
+@theme inline {
+  --color-primary: #3182f6;
+  --color-primary-hover: #2272eb;
+  --color-canvas: #ffffff;
+  --color-foreground: #191f28;
+  --color-body: #4e5968;
+  --color-muted: #8b95a1;
+  --color-surface: #f2f4f6;
+  --color-border: #e5e8eb;
+  --color-weak-bg: #e8f3ff;
+  --color-weak-fg: #1b64da;
+  --color-danger: #e42939;
+  --font-sans: var(--font-noto-sans-kr), "Pretendard Variable", sans-serif;
+  --radius-button: 16px;
+}
+
+body {
+  background: var(--color-canvas);
+  color: var(--color-foreground);
+  font-family: var(--font-sans);
+  font-size: 16px;
+  line-height: 24px;
+}
