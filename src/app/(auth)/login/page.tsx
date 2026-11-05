@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { headers } from "next/headers";
 import { Suspense } from "react";
 import { redirect } from "next/navigation";
@@ -17,8 +18,10 @@ async function loginWithGithub() {
 async function LoginForm({ searchParams }: PageProps<"/login">) {
   const { error } = await searchParams;
   return (
-    <main className="mx-auto w-full max-w-sm px-4 py-24">
-      <h1 className="text-3xl font-bold">로그인</h1>
+    <div className="page-bg flex min-h-screen items-center justify-center px-4">
+    <main className="w-full max-w-sm rounded-3xl bg-white px-6 py-10 text-center">
+      <Link href="/" className="text-2xl font-bold tracking-tight">showcase<span className="text-primary">.</span></Link>
+      <h1 className="mt-6 text-2xl font-bold">로그인</h1>
       <p className="mt-2 text-body">GitHub 계정으로 바로 시작하세요.</p>
       {error && <p className="mt-4 text-sm text-danger">로그인에 실패했어요. 다시 시도해 주세요.</p>}
       <form action={loginWithGithub}>
@@ -27,6 +30,7 @@ async function LoginForm({ searchParams }: PageProps<"/login">) {
         </button>
       </form>
     </main>
+    </div>
   );
 }
 

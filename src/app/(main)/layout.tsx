@@ -29,7 +29,7 @@ async function Nav() {
 
 export default function MainLayout({ children }: LayoutProps<"/">) {
   return (
-    <div className="page-bg flex min-h-screen flex-col">
+    <div className="page-bg flex min-h-screen flex-col overflow-x-clip">
       <header className="sticky top-0 z-10 bg-[#dfe7f5]/80 backdrop-blur">
         <div className="mx-auto flex h-14 w-full max-w-5xl items-center justify-between px-4">
           <Link href="/" className="text-xl font-bold tracking-tight">

@@ -26,7 +26,7 @@ async function NewProjectForm({ searchParams }: PageProps<"/projects/new">) {
   if (!(await getUser())) redirect("/login");
   const { error } = await searchParams;
   return (
-    <main className="mx-auto w-full max-w-xl px-4 py-12">
+    <main className="mx-auto my-10 w-[calc(100%-2rem)] rounded-3xl bg-white px-6 py-10 sm:px-10 max-w-xl">
       <h1 className="text-3xl font-bold">프로젝트 올리기</h1>
       {typeof error === "string" && PROJECT_ERRORS[error] && (
         <p className="mt-4 text-sm text-danger">{PROJECT_ERRORS[error]}</p>

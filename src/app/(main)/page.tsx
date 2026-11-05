@@ -6,29 +6,56 @@ import { db } from "@/lib/supabase/server";
 
 const GRID = "grid auto-rows-[220px] grid-cols-1 gap-2 md:grid-cols-4 md:grid-flow-dense";
 
-async function Feed() {
-  const { data } = await db
+const TABS = [
+  { key: "", label: "전체" },
+  { key: "launch", label: "🚀 출시 서비스" },
+  { key: "personal_tool", label: "🛠 개인용 도구" },
+];
+
+async function Feed({ searchParams }: PageProps<"/">) {
+  const sp = await searchParams;
+  const kind = TABS.some((t) => t.key && t.key === sp.kind) ? String(sp.kind) : "";
+  let q = db
     .from("projects")
     .select("id,title,tagline,thumbnail_url,kind,profiles(username),hypes(count)")
     .order("created_at", { ascending: false })
     .limit(27);
+  if (kind) q = q.eq("kind", kind);
+  const { data } = await q;
   // shortcut: 개발 모드에서 비어 있으면 샘플로 디자인 확인. 운영에서는 빈 상태 문구.
-  const projects = data?.length ? data : process.env.NODE_ENV === "development" ? SAMPLE_PROJECTS : [];
+  const projects = data?.length
+    ? data
+    : process.env.NODE_ENV === "development"
+      ? SAMPLE_PROJECTS.filter((p) => !kind || p.kind === kind)
+      : [];
 
-  if (!projects.length) {
-    return <p className="py-20 text-center text-muted">아직 올라온 프로젝트가 없어요. 첫 번째가 되어 보세요!</p>;
-  }
   return (
     <>
+      <div className="mb-5 flex flex-wrap items-end justify-between gap-3">
+        <h2 className="text-2xl font-bold">새로 올라온 프로젝트</h2>
+        <nav className="flex gap-1.5" aria-label="종류 필터">
+          {TABS.map((t) => (
+            <Link
+              key={t.key}
+              href={t.key ? `/?kind=${t.key}` : "/"}
+              aria-current={kind === t.key ? "page" : undefined}
+              className={`flex h-9 items-center rounded-full px-4 text-sm font-semibold ${kind === t.key ? "bg-foreground text-white" : "bg-white text-body hover:bg-surface"}`}
+            >
+              {t.label}
+            </Link>
+          ))}
+        </nav>
+      </div>
+      {!projects.length && <p className="py-20 text-center text-muted">아직 올라온 프로젝트가 없어요. 첫 번째가 되어 보세요!</p>}
       <ul className={GRID}>
         {projects.map((p, i) => (
           <li key={p.id} className={`contents`}>
-            <ProjectCard p={p} index={i} span={SPANS[i % SPANS.length]} />
+            <ProjectCard p={p} index={i} span={projects.length >= SPANS.length ? SPANS[i % SPANS.length] : "md:col-span-2"} />
           </li>
         ))}
       </ul>
       {/* 하단 알약 띠 */}
-      <div className="marquee mt-16 overflow-hidden" aria-hidden>
+      <div className="marquee relative left-1/2 mt-16 w-screen -translate-x-1/2 overflow-hidden" aria-hidden>
         <div className="marquee-track flex w-max gap-3">
           {[...projects, ...projects].map((p, i) => {
             const t = THEMES[i % THEMES.length];
@@ -54,7 +81,7 @@ function FeedSkeleton() {
   );
 }
 
-export default function Home() {
+export default function Home(props: PageProps<"/">) {
   return (
     <main className="mx-auto w-full max-w-4xl px-4 pb-16">
       <section className="py-16 text-center sm:py-24">
@@ -72,7 +99,7 @@ export default function Home() {
         </Link>
       </section>
       <Suspense fallback={<FeedSkeleton />}>
-        <Feed />
+        <Feed {...props} />
       </Suspense>
     </main>
   );

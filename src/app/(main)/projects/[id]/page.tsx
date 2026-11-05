@@ -70,7 +70,7 @@ async function ProjectView({ params }: PageProps<"/projects/[id]">) {
   const hyped = !!mine.data;
 
   return (
-    <main className="mx-auto w-full max-w-3xl px-4 py-12">
+    <main className="mx-auto my-10 w-[calc(100%-2rem)] rounded-3xl bg-white px-6 py-10 sm:px-10 max-w-3xl">
       {p.thumbnail_url && (
         // eslint-disable-next-line @next/next/no-img-element
         <img src={p.thumbnail_url} alt="" className="mb-6 aspect-[16/10] w-full rounded-2xl bg-surface object-cover" />

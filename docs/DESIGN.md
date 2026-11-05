@@ -562,3 +562,22 @@ Toss Product Sans was designed with Korean text, numbers, and symbols as one pro
 - **Spacing and radius scale.** The official TDS documentation publishes no spacing scale and no radius tokens (foundation pages checked 2026-10-13). The `spacing` xs–xxl and `rounded` sm/md values are clusters measured on the TDS documentation pages, kept because they are sourced to that capture; they are not TDS tokens. The button radii are the rendered official Button component, whose page states no radius or height.
 - **Button pressed and focus.** The TDS Button page names `--button-pressed-opacity` and `--button-pressed-background-color` without values and states no focus ring. The `pressed` and `focus` values come from the 2026-09-17 computed-style capture of that page, not from the documentation text.
 - **Coverage.** Four of 43 published TDS components are measured; marketing CTA hover states were not captured.
+
+---
+
+## showcase-hub 적용 규칙 (Toss + 레퍼런스 조합)
+
+이 프로젝트는 위 Toss 레퍼런스를 **뼈대**로, 벤토 그리드형 앱 소개 페이지(SKT A. 스타일)와 클라우드 서비스 소개 페이지(카테고리 탭)를 **분위기**로 섞는다. 아래는 프로젝트 확장 규칙이며 Toss 검증 토큰이 아니다.
+
+| 영역 | 출처 | 규칙 |
+|---|---|---|
+| 액션 버튼·폼·글자 위계 | Toss | primary `#3182f6`, xlarge 56px / 16px 라운드, 눌림 scale(0.96), grey 텍스트 스케일 |
+| 페이지 배경 | 레퍼런스 | `.page-bg` 하늘·라벤더 radial 그라데이션 위에 흰 카드(24px 라운드)로 콘텐츠를 올린다 |
+| 헤더 | 레퍼런스 | 반투명 `#dfe7f5`/80 + blur, 진한(foreground) 알약 버튼 |
+| 프로젝트 카드 | 레퍼런스 | 4열 벤토 그리드, 9개 단위 크기 패턴, 카드 색 9종(네이비·인디고·핑크·그린·블루·연회색), 썸네일은 3D 클레이 톤 권장 |
+| 필터 | 레퍼런스(카테고리 탭) | 알약 탭, 선택 = foreground 채움, 비선택 = 흰색 |
+| 장식 모션 | 레퍼런스 | 하단 알약 띠 marquee. `prefers-reduced-motion` 에서 정지 |
+| 그림자 | Toss | 쓰지 않는다. 깊이는 색 레이어로만 |
+
+- 카드 색상은 `src/components/project/ProjectCard.tsx` 의 `THEMES` 가 단일 출처다.
+- 샘플 썸네일(`public/samples/`)은 Higgsfield 로 새로 생성한 원본이며, 레퍼런스의 브랜드 캐릭터를 복제하지 않는다.

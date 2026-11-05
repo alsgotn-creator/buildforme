@@ -2,7 +2,7 @@ import type { CardProject } from "@/components/project/ProjectCard";
 
 // 개발 모드에서 DB 가 비었을 때만 디자인 확인용으로 보여주는 가짜 데이터.
 const s = (i: number, title: string, tagline: string, kind: string, hype: number): CardProject => ({
-  id: `sample-${i}`, title, tagline, kind, thumbnail_url: null, hypes: [{ count: hype }], profiles: { username: "sample" },
+  id: `sample-${i}`, title, tagline, kind, thumbnail_url: `/samples/${i}.webp`, hypes: [{ count: hype }], profiles: { username: "sample" },
 });
 
 export const SAMPLE_PROJECTS: CardProject[] = [

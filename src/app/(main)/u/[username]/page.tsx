@@ -19,7 +19,7 @@ async function Profile({ params }: PageProps<"/u/[username]">) {
     .order("created_at", { ascending: false });
 
   return (
-    <main className="mx-auto w-full max-w-3xl px-4 py-12">
+    <main className="mx-auto my-10 w-[calc(100%-2rem)] rounded-3xl bg-white px-6 py-10 sm:px-10 max-w-3xl">
       <div className="flex items-center gap-4">
         {profile.avatar_url && (
           // 외부 아바타 도메인을 next/image 에 등록하지 않으려고 img 사용
