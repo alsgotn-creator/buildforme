@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { Suspense } from "react";
@@ -16,6 +17,17 @@ async function toggleHype(formData: FormData) {
   if (had) await db.from("hypes").delete().eq("user_id", user.id).eq("project_id", projectId);
   else await db.from("hypes").insert({ user_id: user.id, project_id: projectId });
   revalidatePath(`/projects/${projectId}`);
+}
+
+async function deleteProject(formData: FormData) {
+  "use server";
+  const user = await getUser();
+  const projectId = String(formData.get("project_id"));
+  if (!user) redirect("/login");
+  if (!UUID.test(projectId)) return;
+  // owner_id 조건으로 본인 글만 삭제
+  await db.from("projects").delete().eq("id", projectId).eq("owner_id", user.id);
+  redirect("/");
 }
 
 async function addReview(formData: FormData) {
@@ -61,7 +73,9 @@ async function ProjectView({ params }: PageProps<"/projects/[id]">) {
     <main className="mx-auto w-full max-w-3xl px-4 py-12">
       <h1 className="text-3xl font-bold">{p.title}</h1>
       {p.tagline && <p className="mt-1 text-body">{p.tagline}</p>}
-      <p className="mt-2 text-sm text-muted">@{owner?.username}</p>
+      <p className="mt-2 text-sm text-muted">
+        <Link href={`/u/${owner?.username}`}>@{owner?.username}</Link>
+      </p>
 
       <div className="mt-6 flex flex-wrap gap-3">
         <form action={toggleHype}>
@@ -73,6 +87,12 @@ async function ProjectView({ params }: PageProps<"/projects/[id]">) {
         {/* http(s) 만 저장되도록 등록 시 검사함 */}
         {p.url && <a href={p.url} target="_blank" rel="noopener noreferrer" className="flex h-12 items-center rounded-[14px] bg-surface px-5 font-semibold">써보기</a>}
         {p.repo_url && <a href={p.repo_url} target="_blank" rel="noopener noreferrer" className="flex h-12 items-center rounded-[14px] bg-surface px-5 font-semibold">GitHub</a>}
+        {user?.id === p.owner_id && (
+          <form action={deleteProject}>
+            <input type="hidden" name="project_id" value={id} />
+            <button className="h-12 rounded-[14px] px-5 font-semibold text-danger hover:bg-surface">삭제</button>
+          </form>
+        )}
       </div>
 
       {p.description && <p className="mt-8 whitespace-pre-wrap text-body">{p.description}</p>}
