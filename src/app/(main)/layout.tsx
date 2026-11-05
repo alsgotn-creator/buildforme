@@ -35,6 +35,10 @@ export default function MainLayout({ children }: LayoutProps<"/">) {
       <header className="sticky top-0 z-10 bg-[#dfe7f5]/80 backdrop-blur">
         <div className="mx-auto flex w-full max-w-6xl flex-wrap items-center gap-x-4 gap-y-2 px-4 py-2.5 sm:h-14 sm:flex-nowrap sm:py-0">
           <Logo />
+          <nav aria-label="주요 메뉴" className="flex gap-1 text-sm font-semibold text-body">
+            <Link href="/" className="rounded-lg px-2.5 py-1.5 hover:bg-white/70 hover:text-foreground">프로젝트</Link>
+            <Link href="/community" className="rounded-lg px-2.5 py-1.5 hover:bg-white/70 hover:text-foreground">커뮤니티</Link>
+          </nav>
           <Form action="/" className="order-last w-full sm:order-none sm:ml-auto sm:max-w-xs" role="search">
             <input
               name="q"
