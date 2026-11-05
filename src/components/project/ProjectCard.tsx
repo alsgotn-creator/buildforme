@@ -62,6 +62,9 @@ export function ProjectCard({ p, index = 0, span = "" }: { p: CardProject; index
           {p.title.slice(0, 1).toUpperCase()}
         </span>
       )}
+      {p.id.startsWith("sample-") && (
+        <span className="absolute right-3 top-3 z-10 rounded-full bg-white px-2.5 py-1 text-xs font-extrabold text-foreground">샘플</span>
+      )}
       <div className="relative flex h-full flex-col justify-between p-5">
         <div>
           <span className="flex items-center gap-1 text-xs font-semibold opacity-80"><cat.Icon size={14} aria-hidden /> {cat.label} · {p.kind === "personal_tool" ? "개인용" : "출시"}</span>
@@ -73,7 +76,7 @@ export function ProjectCard({ p, index = 0, span = "" }: { p: CardProject; index
             <span className={`flex items-center gap-1 rounded-full px-2.5 py-1 font-semibold ${light ? "bg-white" : "bg-white/20"}`} aria-label={`Hype ${p.hypes?.[0]?.count ?? 0}`}><Flame size={14} aria-hidden /> {p.hypes?.[0]?.count ?? 0}</span>
             <span className={`flex items-center gap-1 rounded-full px-2.5 py-1 font-semibold ${light ? "bg-white" : "bg-white/20"}`} aria-label={`다운로드 ${p.download_count ?? 0}`}><Download size={14} aria-hidden /> {p.download_count ?? 0}</span>
           </span>
-          {p.id.startsWith("sample-") ? <span className="rounded-full bg-black/30 px-2 py-0.5 font-semibold">예시</span> : owner && <span className="opacity-80">@{owner.username}</span>}
+          {!p.id.startsWith("sample-") && owner && <span className="opacity-80">@{owner.username}</span>}
         </div>
       </div>
     </Link>

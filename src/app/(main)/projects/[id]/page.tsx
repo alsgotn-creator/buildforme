@@ -101,7 +101,7 @@ async function ProjectView({ params, searchParams }: PageProps<"/projects/[id]">
 
   return (
     <main className="mx-auto my-10 w-[calc(100%-2rem)] max-w-3xl rounded-3xl bg-white px-6 py-10 sm:px-10">
-      <Slider images={slides} title={p.title} />
+      <Slider images={slides} title={p.title} badge={sample ? "샘플 이미지" : undefined} />
       <span className="inline-flex items-center gap-1.5 rounded-md bg-weak-bg px-2 py-1 text-xs font-semibold text-weak-fg">
         <cat.Icon size={14} aria-hidden /> {cat.label} · {p.kind === "personal_tool" ? "개인용 도구" : "출시 서비스"}
       </span>

@@ -1,4 +1,4 @@
-import { ArrowRight, ChevronLeft, ChevronRight, Clock, Download, Flame, Globe, LayoutGrid, Mail, PenLine, Rocket, TrendingUp, UserPlus, Wrench, X, type LucideIcon } from "lucide-react";
+import { ChevronLeft, ChevronRight, Clock, Download, Flame, Globe, LayoutGrid, Mail, PenLine, Rocket, TrendingUp, UserPlus, Wrench, X, type LucideIcon } from "lucide-react";
 import Link from "next/link";
 import { Suspense } from "react";
 import { RotatingText } from "@/components/ui/RotatingText";
@@ -241,11 +241,12 @@ export default function Home(props: PageProps<"/">) {
       </section>
 
       <section aria-labelledby="howto" className="mb-8 rounded-2xl bg-white px-4 py-3 sm:px-5">
-        <div className="flex flex-wrap items-center gap-x-5 gap-y-2">
-          <h2 id="howto" className="text-base font-extrabold tracking-[-0.03em]">이렇게 등록하세요</h2>
-          <ol className="flex flex-1 flex-wrap items-center gap-x-4 gap-y-1.5">
+        {/* 항상 한 줄: 좁은 화면에서는 줄바꿈 대신 가로 스크롤 */}
+        <div className="flex items-center gap-x-5 overflow-x-auto whitespace-nowrap">
+          <h2 id="howto" className="shrink-0 text-base font-extrabold tracking-[-0.03em]">이렇게 등록하세요</h2>
+          <ol className="flex flex-1 items-center justify-between gap-x-4">
             {STEPS.map((s, i) => (
-              <li key={s.title} className="flex items-center gap-1.5 text-sm leading-tight tracking-[-0.02em]">
+              <li key={s.title} className="flex shrink-0 items-center gap-1.5 text-sm leading-tight tracking-[-0.02em]">
                 <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-weak-bg text-weak-fg">
                   <s.Icon size={13} aria-hidden />
                 </span>
@@ -254,9 +255,6 @@ export default function Home(props: PageProps<"/">) {
               </li>
             ))}
           </ol>
-          <Link href="/projects/new" className="inline-flex items-center gap-0.5 text-sm font-bold text-primary hover:text-primary-hover">
-            등록하기 <ArrowRight size={15} aria-hidden />
-          </Link>
         </div>
       </section>
 
