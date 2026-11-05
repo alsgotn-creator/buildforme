@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { categoryOf } from "@/lib/categories";
 
 export type CardProject = {
   id: string;
@@ -6,6 +7,7 @@ export type CardProject = {
   tagline: string | null;
   thumbnail_url: string | null;
   kind?: string;
+  category?: string | null;
   hypes: { count: number }[] | null;
   profiles?: { username: string } | { username: string }[] | null;
 };
@@ -59,7 +61,7 @@ export function ProjectCard({ p, index = 0, span = "" }: { p: CardProject; index
       )}
       <div className="relative flex h-full flex-col justify-between p-5">
         <div>
-          <span className="text-xs font-semibold opacity-80">{p.kind === "personal_tool" ? "🛠 개인용 도구" : "🚀 출시 서비스"}</span>
+          <span className="text-xs font-semibold opacity-80">{categoryOf(p.category).emoji} {categoryOf(p.category).label} · {p.kind === "personal_tool" ? "개인용" : "출시"}</span>
           <h2 className="mt-2 line-clamp-3 text-xl font-bold leading-snug">{p.title}</h2>
           {p.tagline && <p className="mt-1 line-clamp-2 text-sm opacity-80">{p.tagline}</p>}
         </div>

@@ -1,9 +1,12 @@
+import { CATEGORIES } from "@/lib/categories";
+
 const input = "mt-1 w-full rounded-md border border-border px-3 py-3 outline-none focus:border-primary";
 
 type Defaults = {
   title?: string;
   tagline?: string | null;
   kind?: string;
+  category?: string;
   url?: string | null;
   repo_url?: string | null;
   thumbnail_url?: string | null;
@@ -19,6 +22,13 @@ export function ProjectFields({ d = {} }: { d?: Defaults }) {
       </label>
       <label className="block text-sm font-semibold">한 줄 소개
         <input name="tagline" maxLength={150} defaultValue={d.tagline ?? ""} className={input} />
+      </label>
+      <label className="block text-sm font-semibold">카테고리
+        <select name="category" defaultValue={d.category ?? "etc"} className={input}>
+          {CATEGORIES.map((c) => (
+            <option key={c.key} value={c.key}>{c.emoji} {c.label}</option>
+          ))}
+        </select>
       </label>
       <label className="block text-sm font-semibold">종류
         <select name="kind" defaultValue={d.kind ?? "launch"} className={input}>

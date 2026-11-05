@@ -1,3 +1,5 @@
+import { isCategory } from "@/lib/categories";
+
 const isHttp = (v: string) => /^https?:\/\//i.test(v);
 
 // 등록/수정 공통 폼 검증. 실패하면 에러 코드를 돌려준다.
@@ -15,6 +17,7 @@ export function parseProjectForm(formData: FormData) {
       title,
       tagline: str("tagline") || null,
       description: str("description") || null,
+      category: isCategory(str("category")) ? str("category") : "etc",
       kind: str("kind") === "personal_tool" ? "personal_tool" : "launch",
       url: url || null,
       repo_url: repoUrl || null,
