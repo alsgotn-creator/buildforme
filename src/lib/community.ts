@@ -9,6 +9,15 @@ export const TOPICS: readonly { key: string; label: string; Icon: LucideIcon; cl
 ];
 
 export const isTopic = (k: unknown): k is string => TOPICS.some((t) => t.key === k);
+
+// 글쓰기/수정 공통 검증. 실패하면 null.
+export function parsePostForm(formData: FormData) {
+  const title = String(formData.get("title") ?? "").trim();
+  const body = String(formData.get("body") ?? "").trim();
+  const topic = String(formData.get("topic"));
+  if (!title || title.length > 100 || !body || body.length > 10000) return null;
+  return { title, body, topic: isTopic(topic) ? topic : "chat" };
+}
 export const topicOf = (k?: string | null) => TOPICS.find((t) => t.key === k) ?? TOPICS[0];
 
 // "방금 전 / 5분 전 / 3시간 전 / 2일 전 / 2026.11.05"
@@ -32,7 +41,7 @@ export type PostRow = {
   post_comments: { count: number }[] | null;
 };
 
-// shortcut: 개발 모드에서 DB 가 비었을 때만 쓰는 디자인 확인용 가짜 글.
+// shortcut: DB 에 글이 없을 때 보여주는 예시 글(초기 오픈용). 실제 글이 쌓이면 지울 것.
 const ago = (min: number) => new Date(Date.now() - min * 60000).toISOString();
 const p = (i: number, topic: string, title: string, body: string, min: number, comments: number, username: string): PostRow => ({
   id: `sample-${i}`, topic, title, body, created_at: ago(min), profiles: { username }, post_comments: [{ count: comments }],

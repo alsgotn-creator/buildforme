@@ -3,6 +3,7 @@ import { Suspense } from "react";
 import { ProjectFields } from "@/components/project/ProjectFields";
 import { PROJECT_ERRORS, parseProjectForm } from "@/lib/project-input";
 import { getUser } from "@/lib/supabase/auth";
+import { uploadThumbnail } from "@/lib/upload";
 import { db } from "@/lib/supabase/server";
 
 async function createProject(formData: FormData) {
@@ -12,6 +13,9 @@ async function createProject(formData: FormData) {
 
   const parsed = parseProjectForm(formData);
   if (parsed.error) redirect(`/projects/new?error=${parsed.error}`);
+  const up = await uploadThumbnail(formData, user.id);
+  if (up.error) redirect(`/projects/new?error=${up.error}`);
+  if (up.url) parsed.values.thumbnail_url = up.url;
 
   const { data, error } = await db
     .from("projects")

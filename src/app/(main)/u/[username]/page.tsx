@@ -1,6 +1,9 @@
+import { Pencil } from "lucide-react";
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import { ProjectCard } from "@/components/project/ProjectCard";
+import { getViewer } from "@/lib/supabase/auth";
 import { db } from "@/lib/supabase/server";
 
 async function Profile({ params }: PageProps<"/u/[username]">) {
@@ -14,10 +17,11 @@ async function Profile({ params }: PageProps<"/u/[username]">) {
 
   const { data: projects } = await db
     .from("projects")
-    .select("id,title,tagline,thumbnail_url,kind,hypes(count)")
+    .select("id,title,tagline,thumbnail_url,kind,category,download_count,hypes(count)")
     .eq("owner_id", profile.id)
     .order("created_at", { ascending: false });
 
+  const viewer = await getViewer();
   return (
     <main className="mx-auto my-10 w-[calc(100%-2rem)] rounded-3xl bg-white px-6 py-10 sm:px-10 max-w-3xl">
       <div className="flex items-center gap-4">
@@ -26,10 +30,15 @@ async function Profile({ params }: PageProps<"/u/[username]">) {
           // eslint-disable-next-line @next/next/no-img-element
           <img src={profile.avatar_url} alt="" className="h-16 w-16 rounded-full bg-surface" />
         )}
-        <div>
+        <div className="flex-1">
           <h1 className="text-3xl font-bold">{profile.display_name ?? profile.username}</h1>
           <p className="text-muted">@{profile.username}</p>
         </div>
+        {viewer?.id === profile.id && (
+          <Link href="/settings" className="flex h-10 items-center gap-1.5 rounded-xl bg-surface px-4 text-sm font-semibold hover:bg-border">
+            <Pencil size={16} aria-hidden /> 프로필 편집
+          </Link>
+        )}
       </div>
       {profile.bio && <p className="mt-4 whitespace-pre-wrap text-body">{profile.bio}</p>}
 

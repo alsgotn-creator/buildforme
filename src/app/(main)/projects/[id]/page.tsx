@@ -4,6 +4,8 @@ import { notFound, redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { connection } from "next/server";
 import { Suspense } from "react";
+import { ConfirmButton } from "@/components/ui/ConfirmButton";
+import { ReportForm } from "@/components/ui/ReportForm";
 import { GithubIcon } from "@/components/ui/BrandIcons";
 import { categoryOf } from "@/lib/categories";
 import { SAMPLE_PROJECTS } from "@/lib/sample-projects";
@@ -56,8 +58,9 @@ async function addReview(formData: FormData) {
 
 type Review = { id: string; body: string; rating: number | null; profiles: { username: string } | { username: string }[] | null };
 
-async function ProjectView({ params }: PageProps<"/projects/[id]">) {
+async function ProjectView({ params, searchParams }: PageProps<"/projects/[id]">) {
   const { id } = await params;
+  const { reported } = await searchParams;
   await connection();
 
   // 예시 프로젝트는 읽기 전용으로 보여준다.
@@ -109,16 +112,20 @@ async function ProjectView({ params }: PageProps<"/projects/[id]">) {
           </button>
         </form>
         {/* http(s) 만 저장되도록 등록 시 검사함 */}
-        {p.url && <a href={p.url} target="_blank" rel="noopener noreferrer" className={chip}><ExternalLink size={18} aria-hidden /> 써보기</a>}
+        {p.url && <a href={sample ? p.url : `/go/${id}`} target="_blank" rel="noopener noreferrer" className={chip}><ExternalLink size={18} aria-hidden /> 써보기{!sample && ` · ${p.download_count ?? 0}`}</a>}
         {p.repo_url && <a href={p.repo_url} target="_blank" rel="noopener noreferrer" className={chip}><GithubIcon className="h-[18px] w-[18px]" /> GitHub</a>}
         {canManage && <Link href={`/projects/${id}/edit`} className={chip}><Pencil size={18} aria-hidden /> 수정</Link>}
         {canManage && (
           <form action={deleteProject}>
             <input type="hidden" name="project_id" value={id} />
-            <button className="flex h-12 items-center gap-2 rounded-[14px] px-5 font-semibold text-danger hover:bg-surface"><Trash2 size={18} aria-hidden /> 삭제</button>
+            <ConfirmButton message="이 프로젝트를 삭제할까요? Hype·후기도 함께 지워져요." className="flex h-12 items-center gap-2 rounded-[14px] px-5 font-semibold text-danger hover:bg-surface"><Trash2 size={18} aria-hidden /> 삭제</ConfirmButton>
           </form>
         )}
       </div>
+
+      {!sample && viewer?.id !== p.owner_id && (
+        <div className="mt-4"><ReportForm type="project" id={id} back={`/projects/${id}`} status={typeof reported === "string" ? reported : undefined} /></div>
+      )}
 
       {p.description && <p className="mt-8 whitespace-pre-wrap leading-7 text-body">{p.description}</p>}
 

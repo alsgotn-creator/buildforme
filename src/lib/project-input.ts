@@ -35,4 +35,6 @@ export const PROJECT_ERRORS: Record<string, string> = {
   title: "제목은 1~100자로 입력해 주세요.",
   url: "링크는 http:// 또는 https:// 로 시작해야 해요.",
   save: "저장에 실패했어요. 다시 시도해 주세요.",
+  image: "썸네일은 PNG·JPG·WEBP·GIF, 3MB 이하만 올릴 수 있어요.",
+  upload: "이미지 업로드에 실패했어요. 다시 시도해 주세요.",
 };

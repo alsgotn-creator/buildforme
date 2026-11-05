@@ -1,4 +1,5 @@
 import { CATEGORIES } from "@/lib/categories";
+import { ThumbnailField } from "./ThumbnailField";
 
 const input = "mt-1.5 w-full rounded-md border border-border px-3 py-3 font-normal outline-none focus:border-primary";
 const hint = "mt-1 block text-xs font-normal text-muted";
@@ -57,10 +58,7 @@ export function ProjectFields({ d = {} }: { d?: Defaults }) {
             </select>
           </label>
         </div>
-        <label className="block text-sm font-semibold">썸네일 이미지 주소
-          <input name="thumbnail_url" type="url" placeholder="https://.../image.png" defaultValue={d.thumbnail_url ?? ""} className={input} />
-          <span className={hint}>16:10 비율 이미지를 추천해요. 비워두면 제목 첫 글자로 표시돼요.</span>
-        </label>
+        <ThumbnailField defaultUrl={d.thumbnail_url} />
       </Section>
 
       <Section step={2} title="도메인 · 링크">

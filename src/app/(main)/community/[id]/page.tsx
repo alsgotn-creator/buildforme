@@ -3,6 +3,8 @@ import { notFound, redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { connection } from "next/server";
 import { Suspense } from "react";
+import { ConfirmButton } from "@/components/ui/ConfirmButton";
+import { ReportForm } from "@/components/ui/ReportForm";
 import { SAMPLE_POSTS, timeAgo, topicOf } from "@/lib/community";
 import { getUser, getViewer } from "@/lib/supabase/auth";
 import { db } from "@/lib/supabase/server";
@@ -49,12 +51,13 @@ async function deleteComment(formData: FormData) {
 type Comment = { id: string; body: string; created_at: string; author_id: string; profiles: { username: string } | { username: string }[] | null };
 const nameOf = (p: { username: string } | { username: string }[] | null) => (Array.isArray(p) ? p[0] : p)?.username;
 
-async function PostView({ params }: PageProps<"/community/[id]">) {
+async function PostView({ params, searchParams }: PageProps<"/community/[id]">) {
   const { id } = await params;
+  const { reported } = await searchParams;
   await connection(); // 시간(timeAgo)을 요청 시점에 계산
 
-  // shortcut: 개발 모드 샘플 글은 읽기 전용으로 보여준다.
-  const sample = process.env.NODE_ENV === "development" ? SAMPLE_POSTS.find((s) => s.id === id) : undefined;
+  // 예시 글은 읽기 전용으로 보여준다.
+  const sample = SAMPLE_POSTS.find((s) => s.id === id);
   if (!sample && !UUID.test(id)) notFound();
 
   const [{ data: post }, { data: comments }, user] = sample
@@ -81,13 +84,19 @@ async function PostView({ params }: PageProps<"/community/[id]">) {
             {author && <Link href={`/u/${author}`} className="font-semibold text-body hover:text-foreground">@{author}</Link>} · {timeAgo(post.created_at)}
           </span>
           {user && (user.id === post.author_id || user.isAdmin) && (
+            <span className="flex items-center gap-3">
+            <Link href={`/community/${post.id}/edit`} className="font-semibold text-body hover:text-foreground">수정</Link>
             <form action={deletePost}>
               <input type="hidden" name="post_id" value={post.id} />
-              <button className="font-semibold text-danger">삭제</button>
+              <ConfirmButton message="이 글을 삭제할까요? 댓글도 함께 지워져요." className="font-semibold text-danger">삭제</ConfirmButton>
             </form>
+            </span>
           )}
         </div>
         <p className="mt-6 whitespace-pre-wrap leading-7">{post.body}</p>
+        {!sample && user?.id !== post.author_id && (
+          <div className="mt-6 border-t border-border pt-4"><ReportForm type="post" id={post.id} back={`/community/${post.id}`} status={typeof reported === "string" ? reported : undefined} /></div>
+        )}
       </article>
 
       <section className="mt-3 rounded-3xl bg-white px-6 py-8 sm:px-10">
@@ -101,7 +110,7 @@ async function PostView({ params }: PageProps<"/community/[id]">) {
                   <form action={deleteComment}>
                     <input type="hidden" name="comment_id" value={c.id} />
                     <input type="hidden" name="post_id" value={post.id} />
-                    <button className="text-xs text-muted hover:text-danger">삭제</button>
+                    <ConfirmButton message="댓글을 삭제할까요?" className="text-xs text-muted hover:text-danger">삭제</ConfirmButton>
                   </form>
                 )}
               </div>

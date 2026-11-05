@@ -1,8 +1,9 @@
 import type { CardProject } from "@/components/project/ProjectCard";
 
 // 개발 모드에서 DB 가 비었을 때만 디자인 확인용으로 보여주는 가짜 데이터.
+const DL = [0, 340, 95, 410, 60, 220, 15, 380, 130, 75]; // 예시 다운로드 수 (index = 샘플 번호)
 const s = (i: number, title: string, tagline: string, kind: string, hype: number, category: string): CardProject => ({
-  id: `sample-${i}`, title, tagline, kind, category, thumbnail_url: `/samples/${i}.webp`, hypes: [{ count: hype }], profiles: { username: "sample" },
+  id: `sample-${i}`, title, tagline, kind, category, download_count: DL[i], thumbnail_url: `/samples/${i}.webp`, hypes: [{ count: hype }], profiles: { username: "sample" },
 });
 
 export const SAMPLE_PROJECTS: (CardProject & { features?: string[]; install_guide?: string; contact?: string })[] = [

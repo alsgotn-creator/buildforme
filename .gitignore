@@ -31,7 +31,9 @@ yarn-error.log*
 .pnpm-debug.log*
 
 # env files (can opt-in for committing if needed)
+# Supabase 키(.env.local)는 절대 커밋하지 않는다
 .env*
+.env.local
 
 # vercel
 .vercel

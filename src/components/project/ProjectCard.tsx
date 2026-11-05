@@ -1,4 +1,4 @@
-import { Flame } from "lucide-react";
+import { Download, Flame } from "lucide-react";
 import Link from "next/link";
 import { categoryOf } from "@/lib/categories";
 
@@ -9,6 +9,7 @@ export type CardProject = {
   thumbnail_url: string | null;
   kind?: string;
   category?: string | null;
+  download_count?: number;
   hypes: { count: number }[] | null;
   profiles?: { username: string } | { username: string }[] | null;
 };
@@ -68,7 +69,10 @@ export function ProjectCard({ p, index = 0, span = "" }: { p: CardProject; index
           {p.tagline && <p className="mt-1 line-clamp-2 text-sm opacity-80">{p.tagline}</p>}
         </div>
         <div className="flex items-center justify-between text-xs">
-          <span className={`flex items-center gap-1 rounded-full px-2.5 py-1 font-semibold ${light ? "bg-white" : "bg-white/20"}`}><Flame size={14} aria-hidden /> {p.hypes?.[0]?.count ?? 0}</span>
+          <span className="flex gap-1.5">
+            <span className={`flex items-center gap-1 rounded-full px-2.5 py-1 font-semibold ${light ? "bg-white" : "bg-white/20"}`} aria-label={`Hype ${p.hypes?.[0]?.count ?? 0}`}><Flame size={14} aria-hidden /> {p.hypes?.[0]?.count ?? 0}</span>
+            <span className={`flex items-center gap-1 rounded-full px-2.5 py-1 font-semibold ${light ? "bg-white" : "bg-white/20"}`} aria-label={`다운로드 ${p.download_count ?? 0}`}><Download size={14} aria-hidden /> {p.download_count ?? 0}</span>
+          </span>
           {p.id.startsWith("sample-") ? <span className="rounded-full bg-black/30 px-2 py-0.5 font-semibold">예시</span> : owner && <span className="opacity-80">@{owner.username}</span>}
         </div>
       </div>

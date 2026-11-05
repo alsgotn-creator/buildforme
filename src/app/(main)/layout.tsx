@@ -1,4 +1,4 @@
-import { Search, Shield } from "lucide-react";
+import { CircleUser, Search, Shield } from "lucide-react";
 import Form from "next/form";
 import Link from "next/link";
 import { Logo } from "@/components/layout/Logo";
@@ -25,6 +25,9 @@ async function Nav() {
               <Shield size={16} aria-hidden /> 관리자
             </Link>
           )}
+          <Link href={user.username ? `/u/${user.username}` : "/settings"} className="flex h-9 w-9 items-center justify-center rounded-lg text-body hover:bg-white/70" aria-label="내 프로필">
+            <CircleUser size={20} aria-hidden />
+          </Link>
           <Link href="/projects/new" className={pill}>올리기</Link>
           <form action={logout}><button className="h-9 px-2 text-sm text-body">로그아웃</button></form>
         </>
