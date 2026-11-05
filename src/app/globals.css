@@ -24,3 +24,17 @@ body {
   font-size: 16px;
   line-height: 24px;
 }
+
+/* 파스텔 그라데이션 배경 (레퍼런스: 좌우 번지는 하늘/라벤더 톤) */
+.page-bg {
+  background:
+    radial-gradient(60% 40% at 0% 35%, #cfe0ff 0%, transparent 70%),
+    radial-gradient(50% 35% at 100% 15%, #dbe9ff 0%, transparent 70%),
+    radial-gradient(45% 30% at 0% 75%, #e6dcff 0%, transparent 70%),
+    #f7f9fe;
+}
+
+/* 하단 알약 띠: 좌로 흐르는 무한 스크롤 */
+@keyframes marquee { to { transform: translateX(-50%); } }
+.marquee-track { animation: marquee 45s linear infinite; }
+@media (prefers-reduced-motion: reduce) { .marquee-track { animation: none; } }

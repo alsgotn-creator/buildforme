@@ -14,7 +14,7 @@ async function Profile({ params }: PageProps<"/u/[username]">) {
 
   const { data: projects } = await db
     .from("projects")
-    .select("id,title,tagline,thumbnail_url,hypes(count)")
+    .select("id,title,tagline,thumbnail_url,kind,hypes(count)")
     .eq("owner_id", profile.id)
     .order("created_at", { ascending: false });
 
@@ -35,10 +35,10 @@ async function Profile({ params }: PageProps<"/u/[username]">) {
 
       <h2 className="mt-10 text-xl font-semibold">올린 프로젝트 {projects?.length ?? 0}</h2>
       {projects?.length ? (
-        <ul className="mt-4 grid grid-cols-1 gap-x-5 gap-y-9 sm:grid-cols-2">
-          {projects.map((p) => (
-            <li key={p.id}>
-              <ProjectCard p={p} />
+        <ul className="mt-4 grid auto-rows-[220px] grid-cols-1 gap-2 sm:grid-cols-2">
+          {projects.map((p, i) => (
+            <li key={p.id} className="contents">
+              <ProjectCard p={p} index={i} />
             </li>
           ))}
         </ul>
