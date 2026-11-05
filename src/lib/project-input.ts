@@ -6,9 +6,10 @@ export function parseProjectForm(formData: FormData) {
   const title = str("title");
   const url = str("url");
   const repoUrl = str("repo_url");
+  const thumb = str("thumbnail_url");
   if (!title || title.length > 100) return { error: "title" as const };
   // http(s) 만 허용 (javascript: 링크 방지)
-  if ((url && !isHttp(url)) || (repoUrl && !isHttp(repoUrl))) return { error: "url" as const };
+  if ((url && !isHttp(url)) || (repoUrl && !isHttp(repoUrl)) || (thumb && !isHttp(thumb))) return { error: "url" as const };
   return {
     values: {
       title,
@@ -17,6 +18,7 @@ export function parseProjectForm(formData: FormData) {
       kind: str("kind") === "personal_tool" ? "personal_tool" : "launch",
       url: url || null,
       repo_url: repoUrl || null,
+      thumbnail_url: thumb || null,
       tags: str("tags").split(",").map((t) => t.trim()).filter(Boolean).slice(0, 5),
     },
   };

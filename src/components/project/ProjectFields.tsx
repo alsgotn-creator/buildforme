@@ -6,6 +6,7 @@ type Defaults = {
   kind?: string;
   url?: string | null;
   repo_url?: string | null;
+  thumbnail_url?: string | null;
   tags?: string[];
   description?: string | null;
 };
@@ -30,6 +31,9 @@ export function ProjectFields({ d = {} }: { d?: Defaults }) {
       </label>
       <label className="block text-sm font-semibold">GitHub 링크
         <input name="repo_url" type="url" placeholder="https://github.com/..." defaultValue={d.repo_url ?? ""} className={input} />
+      </label>
+      <label className="block text-sm font-semibold">썸네일 이미지 링크
+        <input name="thumbnail_url" type="url" placeholder="https://.../image.png" defaultValue={d.thumbnail_url ?? ""} className={input} />
       </label>
       <label className="block text-sm font-semibold">태그 (쉼표로 구분, 최대 5개)
         <input name="tags" defaultValue={d.tags?.join(", ")} className={input} />

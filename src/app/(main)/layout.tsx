@@ -29,7 +29,7 @@ export default function MainLayout({ children }: LayoutProps<"/">) {
   return (
     <>
       <header className="border-b border-border">
-        <div className="mx-auto flex h-14 w-full max-w-3xl items-center justify-between px-4">
+        <div className="mx-auto flex h-14 w-full max-w-5xl items-center justify-between px-4">
           <Link href="/" className="font-bold">showcase-hub</Link>
           <Suspense fallback={<span />}>
             <Nav />

@@ -71,6 +71,10 @@ async function ProjectView({ params }: PageProps<"/projects/[id]">) {
 
   return (
     <main className="mx-auto w-full max-w-3xl px-4 py-12">
+      {p.thumbnail_url && (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img src={p.thumbnail_url} alt="" className="mb-6 aspect-[16/10] w-full rounded-2xl bg-surface object-cover" />
+      )}
       <h1 className="text-3xl font-bold">{p.title}</h1>
       {p.tagline && <p className="mt-1 text-body">{p.tagline}</p>}
       <p className="mt-2 text-sm text-muted">
