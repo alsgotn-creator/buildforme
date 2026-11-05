@@ -1,11 +1,11 @@
-import { ChevronLeft, ChevronRight, Clock, Download, Flame, Globe, LayoutGrid, Mail, PenLine, Rocket, TrendingUp, UserPlus, Wrench, X, type LucideIcon } from "lucide-react";
+import { Clock, Download, Flame, Globe, LayoutGrid, Mail, PenLine, Rocket, TrendingUp, UserPlus, Wrench, X, type LucideIcon } from "lucide-react";
 import Link from "next/link";
 import { Suspense } from "react";
 import { RotatingText } from "@/components/ui/RotatingText";
-import { ProjectCard, SPANS, THEMES, type CardProject } from "@/components/project/ProjectCard";
-import { CATEGORIES, categoryOf, isCategory } from "@/lib/categories";
-import { SAMPLE_PROJECTS } from "@/lib/sample-projects";
-import { db } from "@/lib/supabase/server";
+import { THEMES } from "@/components/project/ProjectCard";
+import { InfiniteGrid } from "@/components/project/InfiniteGrid";
+import { CATEGORIES, categoryOf } from "@/lib/categories";
+import { cleanFilters, fetchFeed, type FeedFilters } from "@/lib/feed";
 
 const HERO_WORDS = ["개발", "업무", "디자인", "공부", "게임", "기록"];
 
@@ -32,70 +32,24 @@ const SORTS = [
   { key: "hype", label: "Hype순", Icon: Flame, col: "hype_count" },
   { key: "latest", label: "최신순", Icon: Clock, col: "created_at" },
 ] as const;
-type SortKey = (typeof SORTS)[number]["key"];
-const PAGE_SIZE = 27;
+type Filters = FeedFilters;
 
-type Filters = { q: string; kind: string; cat: string; sort: string; page: string };
-
-// 현재 필터를 유지한 채 일부만 바꾼 URL. 기본값(인기순·1페이지)은 URL 에서 뺀다. 필터가 바뀌면 1페이지로.
+// 현재 필터를 유지한 채 일부만 바꾼 URL. 기본값(인기순)은 URL 에서 뺀다.
 function href(f: Filters, change: Partial<Filters>) {
-  const next = { ...f, page: "", ...change };
+  const next = { ...f, ...change };
   const u = new URLSearchParams();
   for (const [k, v] of Object.entries(next)) {
-    if (!v || (k === "sort" && v === "popular") || (k === "page" && v === "1")) continue;
+    if (!v || (k === "sort" && v === "popular")) continue;
     u.set(k, v);
   }
   const s = u.toString();
   return s ? `/?${s}` : "/";
 }
 
-// 예시 카드 정렬 (DB 가 비었을 때)
-const sampleScore = (p: (typeof SAMPLE_PROJECTS)[number], sort: SortKey) => {
-  const hype = p.hypes?.[0]?.count ?? 0;
-  const dl = p.download_count ?? 0;
-  if (sort === "downloads") return dl;
-  if (sort === "hype") return hype;
-  if (sort === "latest") return -Number(p.id.split("-")[1]);
-  return hype * 3 + dl;
-};
-
 async function Browse({ searchParams }: PageProps<"/">) {
-  const sp = await searchParams;
-  const sort = SORTS.find((x) => x.key === sp.sort) ?? SORTS[0];
-  const page = Math.max(1, Math.min(1000, Number.parseInt(String(sp.page ?? "1"), 10) || 1));
-  const f: Filters = {
-    // PostgREST or() 문법을 깨는 문자는 제거 (필터 주입 방지)
-    q: String(sp.q ?? "").replace(/[,()%*\\"]/g, " ").trim().slice(0, 50),
-    kind: KINDS.some((k) => k.key && k.key === sp.kind) ? String(sp.kind) : "",
-    cat: isCategory(sp.cat) ? String(sp.cat) : "",
-    sort: sort.key,
-    page: String(page),
-  };
-
-  let query = db
-    .from("project_feed")
-    .select("id,title,tagline,thumbnail_url,kind,category,owner_username,hype_count,download_count", { count: "exact" })
-    .order(sort.col, { ascending: false })
-    .order("created_at", { ascending: false })
-    .range((page - 1) * PAGE_SIZE, page * PAGE_SIZE - 1);
-  if (f.kind) query = query.eq("kind", f.kind);
-  if (f.cat) query = query.eq("category", f.cat);
-  if (f.q) query = query.or(`title.ilike.%${f.q}%,tagline.ilike.%${f.q}%`);
-  const { data, count } = await query;
-
-  // shortcut: DB 에 프로젝트가 없으면 예시 카드를 보여준다(초기 오픈용). 실제 글이 쌓이면 SAMPLE_PROJECTS 를 지울 것.
-  const usingSamples = !data?.length && page === 1;
-  const projects: CardProject[] = data?.length
-    ? data.map((p) => ({ ...p, hypes: [{ count: p.hype_count }], profiles: { username: p.owner_username } }))
-    : usingSamples
-      ? SAMPLE_PROJECTS.filter(
-          (p) =>
-            (!f.kind || p.kind === f.kind) &&
-            (!f.cat || p.category === f.cat) &&
-            (!f.q || `${p.title} ${p.tagline}`.toLowerCase().includes(f.q.toLowerCase())),
-        ).sort((a, b) => sampleScore(b, sort.key) - sampleScore(a, sort.key))
-      : [];
-  const totalPages = usingSamples ? 1 : Math.max(1, Math.ceil((count ?? 0) / PAGE_SIZE));
+  const f = cleanFilters(await searchParams);
+  const sort = SORTS.find((x) => x.key === f.sort) ?? SORTS[0];
+  const { items: projects, hasMore } = await fetchFeed(f, 1);
 
   const title = f.q ? `‘${f.q}’ 검색 결과` : f.cat ? categoryOf(f.cat).label : "프로젝트 둘러보기";
   const catItem = (key: string, label: string, Icon: LucideIcon) => {
@@ -167,25 +121,7 @@ async function Browse({ searchParams }: PageProps<"/">) {
               {f.q || f.cat || f.kind ? "조건에 맞는 프로젝트가 없어요." : "아직 올라온 프로젝트가 없어요. 첫 번째가 되어 보세요!"}
             </p>
           ) : (
-            <ul className={GRID}>
-              {projects.map((p, i) => (
-                <li key={p.id} className="contents">
-                  <ProjectCard p={p} index={i} span={projects.length >= SPANS.length ? SPANS[i % SPANS.length] : "md:col-span-2"} />
-                </li>
-              ))}
-            </ul>
-          )}
-
-          {totalPages > 1 && (
-            <nav aria-label="페이지" className="mt-6 flex items-center justify-center gap-2 text-sm font-semibold">
-              {page > 1 ? (
-                <Link href={href(f, { page: String(page - 1) })} className="flex h-10 items-center gap-1 rounded-xl bg-white px-4 hover:bg-surface"><ChevronLeft size={16} aria-hidden /> 이전</Link>
-              ) : <span className="flex h-10 items-center gap-1 rounded-xl px-4 text-muted"><ChevronLeft size={16} aria-hidden /> 이전</span>}
-              <span className="px-2 text-body">{page} / {totalPages}</span>
-              {page < totalPages ? (
-                <Link href={href(f, { page: String(page + 1) })} className="flex h-10 items-center gap-1 rounded-xl bg-white px-4 hover:bg-surface">다음 <ChevronRight size={16} aria-hidden /></Link>
-              ) : <span className="flex h-10 items-center gap-1 rounded-xl px-4 text-muted">다음 <ChevronRight size={16} aria-hidden /></span>}
-            </nav>
+            <InfiniteGrid key={JSON.stringify(f)} initial={projects} hasMore={hasMore} filters={f} />
           )}
         </section>
       </div>
@@ -240,18 +176,18 @@ export default function Home(props: PageProps<"/">) {
         </Link>
       </section>
 
-      <section aria-labelledby="howto" className="mb-8 rounded-2xl bg-white px-4 py-3 sm:px-5">
+      <section aria-labelledby="howto" className="mb-6 rounded-xl bg-white/70 px-3 py-2">
         {/* 항상 한 줄: 좁은 화면에서는 줄바꿈 대신 가로 스크롤 */}
-        <div className="flex items-center gap-x-5 overflow-x-auto whitespace-nowrap">
-          <h2 id="howto" className="shrink-0 text-base font-extrabold tracking-[-0.03em]">이렇게 등록하세요</h2>
-          <ol className="flex flex-1 items-center justify-between gap-x-4">
+        <div className="flex items-center gap-x-4 overflow-x-auto whitespace-nowrap">
+          <h2 id="howto" className="shrink-0 text-xs text-body">이렇게 등록하세요</h2>
+          <ol className="flex flex-1 items-center justify-between gap-x-3">
             {STEPS.map((s, i) => (
-              <li key={s.title} className="flex shrink-0 items-center gap-1.5 text-sm leading-tight tracking-[-0.02em]">
-                <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-weak-bg text-weak-fg">
-                  <s.Icon size={13} aria-hidden />
+              <li key={s.title} className="flex shrink-0 items-center gap-1 text-xs leading-tight tracking-[-0.02em] text-body">
+                <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-weak-bg text-weak-fg">
+                  <s.Icon size={11} aria-hidden />
                 </span>
-                <span className="font-extrabold">{i + 1}. {s.title}</span>
-                <span className="hidden font-medium text-muted xl:inline">{s.desc}</span>
+                <span>{i + 1}. {s.title}</span>
+                <span className="hidden text-muted xl:inline">{s.desc}</span>
               </li>
             ))}
           </ol>

@@ -15,6 +15,11 @@ async function origin() {
 export async function loginWithProvider(formData: FormData) {
   const provider = String(formData.get("provider")) as Provider;
   if (!PROVIDERS.includes(provider)) redirect("/login?error=1");
+  // Supabase 에서 아직 켜지 않은 로그인 방식이면 Supabase 오류 화면 대신 '준비 중' 안내로 돌려보낸다
+  const settings = await fetch(`${process.env.SUPABASE_URL}/auth/v1/settings`, {
+    headers: { apikey: process.env.SUPABASE_PUBLISHABLE_KEY ?? "" },
+  }).then((r) => (r.ok ? r.json() : null)).catch(() => null);
+  if (!settings?.external?.[provider]) redirect("/login?error=provider");
   const { data, error } = await (await createAuthClient()).auth.signInWithOAuth({
     provider,
     options: { redirectTo: `${await origin()}/auth/callback` },
